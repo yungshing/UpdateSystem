@@ -1,0 +1,15 @@
+﻿<Version>
+  <FTP username="ftpa" password="123456" addr="ftp://120.76.28.224/WenDingVersion-C/Config/Version-C.config" />
+  <UserRight Value="Vip" />
+  <Machine Value="XXJ" />
+  <Path value="ftp://120.76.28.224/WenDingVersion-C/Config/ClientData/GuangDong_GZ_GUANGREN/data.config" />
+  <ClientVersion value="RH2-GZ-GUANGREN-V1.0.0.1" />
+  <CarModel Value="JieDa" />
+  <FileHashList>
+    <FileName Value="PanYu_KM2" />
+    <FileName Value="DongSen_KM2" />
+  </FileHashList>
+  <UpdateText>
+    <ut>首次更新将会下载全部文件需要一定时间，请耐心等待。</ut>
+  </UpdateText>
+</Version>

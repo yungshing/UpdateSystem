@@ -1,0 +1,236 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{FAE7D0DD-A439-47F9-81CB-7E2B6170E9AB}</ProjectGuid>
+    <OutputType>WinExe</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>UpdateSystem</RootNamespace>
+    <AssemblyName>UpdateSystem</AssemblyName>
+    <TargetFrameworkVersion>v2.0</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <TargetFrameworkProfile>
+    </TargetFrameworkProfile>
+    <IsWebBootstrapper>false</IsWebBootstrapper>
+    <PublishUrl>C:\Program Files %28x86%29\</PublishUrl>
+    <Install>true</Install>
+    <InstallFrom>Disk</InstallFrom>
+    <UpdateEnabled>false</UpdateEnabled>
+    <UpdateMode>Foreground</UpdateMode>
+    <UpdateInterval>7</UpdateInterval>
+    <UpdateIntervalUnits>Days</UpdateIntervalUnits>
+    <UpdatePeriodically>false</UpdatePeriodically>
+    <UpdateRequired>false</UpdateRequired>
+    <MapFileExtensions>true</MapFileExtensions>
+    <ApplicationRevision>0</ApplicationRevision>
+    <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
+    <UseApplicationTrust>false</UseApplicationTrust>
+    <BootstrapperEnabled>true</BootstrapperEnabled>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <Prefer32Bit>false</Prefer32Bit>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <Prefer32Bit>false</Prefer32Bit>
+  </PropertyGroup>
+  <PropertyGroup>
+    <TargetZone>LocalIntranet</TargetZone>
+  </PropertyGroup>
+  <PropertyGroup>
+    <GenerateManifests>false</GenerateManifests>
+  </PropertyGroup>
+  <PropertyGroup />
+  <PropertyGroup>
+    <ApplicationIcon>改版-07 [256x256].ico</ApplicationIcon>
+  </PropertyGroup>
+  <PropertyGroup />
+  <PropertyGroup />
+  <PropertyGroup>
+    <ApplicationManifest>Properties\app.manifest</ApplicationManifest>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.DirectoryServices" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Deployment" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Forms\NewFormB.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\NewFormB.Designer.cs">
+      <DependentUpon>NewFormB.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Forms\NewMainUI.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\NewMainUI.Designer.cs">
+      <DependentUpon>NewMainUI.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Program.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Resources\UI.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>UI.resx</DependentUpon>
+    </Compile>
+    <Compile Include="Scripts\Base\ConfigXML.cs" />
+    <Compile Include="Scripts\Base\ConstValue.cs" />
+    <Compile Include="Scripts\Base\FileHandle.cs" />
+    <Compile Include="Scripts\Base\FTPDownload.cs" />
+    <Compile Include="Scripts\Base\GlobalData.cs" />
+    <Compile Include="Scripts\Base\OneEvent.cs" />
+    <Compile Include="Scripts\BitmapRegion.cs" />
+    <Compile Include="Scripts\Component\MinCloseBtn.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Scripts\Component\MinCloseBtn.Designer.cs">
+      <DependentUpon>MinCloseBtn.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Scripts\Component\ZButtn.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="Scripts\Component\ZButtn.Designer.cs">
+      <DependentUpon>ZButtn.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Scripts\Component\ZProgressBar.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="Scripts\Component\ZProgressBar.Designer.cs">
+      <DependentUpon>ZProgressBar.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Scripts\Follow\DownloadFormFollow.cs" />
+    <Compile Include="Scripts\Follow\Follow.cs" />
+    <Compile Include="Scripts\Follow\InstallFollow.cs" />
+    <Compile Include="Scripts\Follow\MainFormFollow.cs" />
+    <Compile Include="Scripts\Follow\UpdatesContentFormFollow.cs" />
+    <Compile Include="Scripts\Interface\MyInterface.cs" />
+    <Compile Include="Scripts\Utility.cs" />
+    <EmbeddedResource Include="Forms\NewFormB.resx">
+      <DependentUpon>NewFormB.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Forms\NewMainUI.resx">
+      <DependentUpon>NewMainUI.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Properties\Resources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <Compile Include="Properties\Resources.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Resources.resx</DependentUpon>
+      <DesignTime>True</DesignTime>
+    </Compile>
+    <EmbeddedResource Include="Resources\UI.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>UI.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Scripts\Component\MinCloseBtn.resx">
+      <DependentUpon>MinCloseBtn.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Scripts\Component\ZProgressBar.resx">
+      <DependentUpon>ZProgressBar.cs</DependentUpon>
+    </EmbeddedResource>
+    <None Include="Properties\app.manifest" />
+    <None Include="Properties\Settings.settings">
+      <Generator>SettingsSingleFileGenerator</Generator>
+      <LastGenOutput>Settings.Designer.cs</LastGenOutput>
+    </None>
+    <Compile Include="Properties\Settings.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Settings.settings</DependentUpon>
+      <DesignTimeSharedInput>True</DesignTimeSharedInput>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="App.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Icon\" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Download_from_Cloud_Server_128px_1185826_easyicon.net.ico" />
+    <None Include="Resources\N软件更新页面底图802X602.png" />
+    <None Include="Resources\加载条www.png" />
+    <None Include="Resources\安装-03.png" />
+    <None Include="Resources\更新-03.png" />
+    <None Include="Resources\暂停-03.png" />
+    <None Include="Resources\运行现有版本-03.png" />
+    <None Include="Resources\运行现有版本-01.png" />
+    <None Include="Resources\更新-01.png" />
+    <None Include="Resources\暂停-01.png" />
+    <None Include="Resources\安装-01.png" />
+    <Content Include="XMLFile1.xml" />
+    <Content Include="改版-07 [256x256].ico" />
+    <None Include="Resources\切图20170817.zip" />
+    <None Include="Resources\_X-01.png" />
+    <None Include="Resources\_X-02.png" />
+    <None Include="Resources\---1.png" />
+    <None Include="Resources\XXX1.png" />
+    <None Include="Resources\安装-02.png" />
+    <None Include="Resources\更新-02.png" />
+    <None Include="Resources\数据栏.png" />
+    <None Include="Resources\运行现有版本-02.png" />
+    <None Include="Resources\暂停-02.png" />
+    <None Include="Resources\开始-01.png" />
+    <None Include="Resources\开始-02.png" />
+    <None Include="Resources\改版-07.png" />
+    <Content Include="Scripts\Version-C.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <BootstrapperPackage Include="Microsoft.Net.Client.3.5">
+      <Visible>False</Visible>
+      <ProductName>.NET Framework 3.5 SP1 Client Profile</ProductName>
+      <Install>false</Install>
+    </BootstrapperPackage>
+    <BootstrapperPackage Include="Microsoft.Net.Framework.3.5.SP1">
+      <Visible>False</Visible>
+      <ProductName>.NET Framework 3.5 SP1</ProductName>
+      <Install>true</Install>
+    </BootstrapperPackage>
+  </ItemGroup>
+  <ItemGroup>
+    <PublishFile Include="Scripts\Version-C.xml">
+      <Visible>False</Visible>
+      <Group>
+      </Group>
+      <TargetPath>
+      </TargetPath>
+      <PublishState>Exclude</PublishState>
+      <IncludeHash>True</IncludeHash>
+      <FileType>File</FileType>
+    </PublishFile>
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

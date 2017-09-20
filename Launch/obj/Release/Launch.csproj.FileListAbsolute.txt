@@ -1,0 +1,8 @@
+E:\LocalSVN\SVN\Projects\UpdateSystem\Launch\bin\Release\Launch.exe
+E:\LocalSVN\SVN\Projects\UpdateSystem\Launch\bin\Release\Launch.pdb
+E:\LocalSVN\SVN\Projects\UpdateSystem\Launch\obj\Release\Launch.csprojResolveAssemblyReference.cache
+E:\LocalSVN\SVN\Projects\UpdateSystem\Launch\obj\Release\Launch.Form1.resources
+E:\LocalSVN\SVN\Projects\UpdateSystem\Launch\obj\Release\Launch.Properties.Resources.resources
+E:\LocalSVN\SVN\Projects\UpdateSystem\Launch\obj\Release\Launch.csproj.GenerateResource.Cache
+E:\LocalSVN\SVN\Projects\UpdateSystem\Launch\obj\Release\Launch.exe
+E:\LocalSVN\SVN\Projects\UpdateSystem\Launch\obj\Release\Launch.pdb
