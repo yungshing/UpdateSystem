@@ -78,8 +78,19 @@ namespace UpdateSystem
                 {
                     continue;
                 }
+<<<<<<< HEAD
+                SetProgressBar(0, 1);
+                ShowPercent("0%");
+                if (savePath.Contains("data.config.tmp"))
+                {
+                    GlobalEvent.SaveDebugLog();
+                }
+                SetProgressBar(0, 1);
+                ShowPercent("0%");
+=======
                 _SetProgressBar(0, 1);
                 _ShowPercent("0%");
+>>>>>>> parent of 241b763... V1.0.5
                 ConnectFTP(downloadPath);
                 long downloadBytes = 0;
                 long TotalBytes = 0;

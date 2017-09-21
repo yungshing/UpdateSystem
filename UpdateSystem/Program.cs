@@ -60,7 +60,7 @@ namespace UpdateSystem
             int sum = 0;
             foreach (var item in Process.GetProcesses())
             {
-                if (item.ProcessName.Contains(Application.ProductName))
+                if (item.ProcessName.Contains("UpdateSystem"))
                     sum ++;
             }
             return sum >= 2;
