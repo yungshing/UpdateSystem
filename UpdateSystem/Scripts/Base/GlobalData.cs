@@ -49,6 +49,10 @@ namespace UpdateSystem
         public static VersionXML webXML = new VersionXML();
         public static List<XMLFileInfo> needUpdateFiles = new List<XMLFileInfo>();
         /// <summary>
+        /// 未下载完整的文件
+        /// </summary>
+        public static List<XMLFileInfo> failureFiles = new List<XMLFileInfo>();
+        /// <summary>
         /// 本地有哪些文件没有用了，删掉
         /// </summary>
         public static List<XMLFileInfo> needDeleteFiles = new List<XMLFileInfo>();

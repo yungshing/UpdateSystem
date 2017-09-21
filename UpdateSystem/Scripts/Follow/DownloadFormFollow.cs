@@ -68,7 +68,11 @@ namespace UpdateSystem
             downloadThread = new Thread(() =>
             {
                 _DownloadVersion_C();
-                _DownloadUpdateFiles();
+                _DownloadUpdateFiles(GlobalData.needUpdateFiles);
+                while(!CheckFiles())
+                {
+                    _DownloadUpdateFiles(GlobalData.failureFiles);
+                }
                 doDownloadOver();
                 downloadThread.Abort();
             });
@@ -149,7 +153,7 @@ namespace UpdateSystem
             ftp.Dispose();
             GlobalEvent.WriteLog("下载version-C.config.................完成");
         }
-        private void _DownloadUpdateFiles()
+        private void _DownloadUpdateFiles(List<XMLFileInfo> xfi)
         {
             if (ftp != null)
             {
@@ -159,17 +163,17 @@ namespace UpdateSystem
             GlobalData.ftpAddress.AllAddress = GlobalData.localXML.x_FTPAddress;
             ftp = new FTPDownload(GlobalData.localXML.x_FtpAccount.Username, GlobalData.localXML.x_FtpAccount.Password);
             SetFormUIEvent();
-            for (int i = 0; i < GlobalData.needUpdateFiles.Count; i++)
+            for (int i = 0; i < xfi.Count; i++)
             {
-                GlobalEvent.WriteLog("下载第" + i.ToString() + "个文件 : " + GlobalData.needUpdateFiles[i].Name);
+                GlobalEvent.WriteLog("下载第" + i.ToString() + "个文件 : " + xfi[i].Name);
 
-                RundoShowDownloadFileInfo((i + 1).ToString() + "/" + GlobalData.needUpdateFiles.Count.ToString());
-                RundoShowFilesCountBar(i, GlobalData.needUpdateFiles.Count);
-                float f = (float)i / (float)GlobalData.needUpdateFiles.Count;
+                RundoShowDownloadFileInfo((i + 1).ToString() + "/" + xfi.Count.ToString());
+                RundoShowFilesCountBar(i, xfi.Count);
+                float f = (float)i / (float)xfi.Count;
                 f = f * 100f;
                 RundoShowFileCountPercent(((int)f).ToString() + "%");
-                var dP = Path.Combine(GlobalData.ftpAddress.CurrAddress, GlobalData.needUpdateFiles[i].Address);
-                var sP = Path.Combine(GlobalData.filePath.UpdatePath, GlobalData.needUpdateFiles[i].Address);
+                var dP = Path.Combine(GlobalData.ftpAddress.CurrAddress, xfi[i].Address);
+                var sP = Path.Combine(GlobalData.filePath.UpdatePath, xfi[i].Address);
                 var d1 = new FileInfo(sP);
                 if (!Directory.Exists(d1.Directory.FullName))
                 {
@@ -409,6 +413,53 @@ namespace UpdateSystem
             }
             st.Stop();
             return b;
+        }
+        /// <summary>
+        /// 下载完成后，检测文件是否全部下载完整
+        /// true:全部下载完整
+        /// false:有文件下载失败
+        /// </summary>
+        /// <returns></returns>
+        private bool CheckFiles()
+        {
+            var t = GlobalData.needUpdateFiles;
+            GlobalData.failureFiles.Clear();
+            for (int i = 0; i < t.Count; i++)
+            {
+                RundoShowFilesCountBar(i + 1, t.Count);
+                RundoShowDownloadFileInfo("检测文件：" + (i + 1).ToString() + "/" + t.Count.ToString());
+                GlobalEvent.WriteLog("检测第" + i.ToString() + "个文件：" + t[i].Name);
+                var tP = Path.Combine(GlobalData.filePath.UpdatePath, t[i].Address);
+                var b = (t[i].InstallPath.Contains("Mono") && t[i].InstallPath.Contains("etc")) || (t[i].InstallPath.ToLower().EndsWith(".xml"));
+                if (b)
+                {
+                    GlobalEvent.WriteLog("xml文件,跳过检测");
+                    continue;
+                }
+                try
+                {
+                    #region 检测文件-----------------------MD5方式
+                    var md5 = Utility.GetMD5Value(tP);
+                    if (t[i].Hash != md5)
+                    {
+                        GlobalData.failureFiles.Add(t[i]);
+                        GlobalEvent.WriteLog(t[i].Address);
+                        GlobalEvent.WriteLog("云MD5：" + t[i].Hash);
+                        GlobalEvent.WriteLog("本地MD5：" + md5);
+                    }
+                    #endregion
+                }
+                catch
+                {
+                    #region 检测文件-------------------文件是否存在方式 因为MD5目前有些电脑会出问题
+                    if (!File.Exists(tP))
+                    {
+                        GlobalData.failureFiles.Add(t[i]);
+                    }
+                    #endregion
+                }
+            }
+            return !(GlobalData.failureFiles.Count > 0);
         }
         public void DeleteConfig()
         {

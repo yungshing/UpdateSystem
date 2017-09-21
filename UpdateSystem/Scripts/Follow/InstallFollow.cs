@@ -29,10 +29,10 @@ namespace UpdateSystem
             }
             installThread = new Thread(()=>
             {
-                if (!_CheckFiles())
-                {
-                    installThread.Abort();
-                }
+                //if (!_CheckFiles())
+                //{
+                //    installThread.Abort();
+                //}
                 _install();
                 _InstallOver();
             });
@@ -46,7 +46,7 @@ namespace UpdateSystem
         private bool _CheckFiles()
         {
             var t = GlobalData.needUpdateFiles;
-            var tmp = new List<XMLFileInfo>();
+            GlobalData.failureFiles = new List<XMLFileInfo>();
             for (int i = 0; i < t.Count; i++)
             {
                 RundoChangeProgressBarValue(i + 1, t.Count);
@@ -65,7 +65,7 @@ namespace UpdateSystem
                     var md5 = Utility.GetMD5Value(tP);
                     if (t[i].Hash != md5)
                     {
-                        tmp.Add(t[i]);
+                        GlobalData.failureFiles.Add(t[i]);
                         GlobalEvent.WriteLog(t[i].Address);
                         GlobalEvent.WriteLog("云MD5：" + t[i].Hash);
                         GlobalEvent.WriteLog("本地MD5：" + md5);
@@ -77,12 +77,12 @@ namespace UpdateSystem
                     #region 检测文件-------------------文件是否存在方式 因为MD5目前有些电脑会出问题
                     if (!File.Exists(tP))
                     {
-                        tmp.Add(t[i]);
+                        GlobalData.failureFiles.Add(t[i]);
                     }
+                    #endregion
                 }
-                #endregion
             }
-            if (tmp.Count > 0)
+            if (GlobalData.failureFiles.Count > 0)
             {
                 RundoShowMessageBox();
                 return false;

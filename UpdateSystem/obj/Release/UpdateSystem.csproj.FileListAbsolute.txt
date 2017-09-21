@@ -24,3 +24,16 @@ E:\LocalSVN\UpdateSystem\UpdateSystem\obj\Release\UpdateSystem.Resources.UI.reso
 E:\LocalSVN\UpdateSystem\UpdateSystem\obj\Release\UpdateSystem.MinCloseBtn.resources
 E:\LocalSVN\UpdateSystem\UpdateSystem\obj\Release\UpdateSystem.ZProgressBar.resources
 E:\LocalSVN\UpdateSystem\UpdateSystem\obj\Release\UpdateSystem.csproj.GenerateResource.Cache
+E:\LocalSVN\SVN\Git\UpdateSystem\UpdateSystem\bin\Release\UpdateSystem.exe.config
+E:\LocalSVN\SVN\Git\UpdateSystem\UpdateSystem\bin\Release\UpdateSystem.exe
+E:\LocalSVN\SVN\Git\UpdateSystem\UpdateSystem\bin\Release\UpdateSystem.pdb
+E:\LocalSVN\SVN\Git\UpdateSystem\UpdateSystem\obj\Release\UpdateSystem.csprojResolveAssemblyReference.cache
+E:\LocalSVN\SVN\Git\UpdateSystem\UpdateSystem\obj\Release\UpdateSystem.NewFormB.resources
+E:\LocalSVN\SVN\Git\UpdateSystem\UpdateSystem\obj\Release\UpdateSystem.NewMainUI.resources
+E:\LocalSVN\SVN\Git\UpdateSystem\UpdateSystem\obj\Release\UpdateSystem.Properties.Resources.resources
+E:\LocalSVN\SVN\Git\UpdateSystem\UpdateSystem\obj\Release\UpdateSystem.Resources.UI.resources
+E:\LocalSVN\SVN\Git\UpdateSystem\UpdateSystem\obj\Release\UpdateSystem.MinCloseBtn.resources
+E:\LocalSVN\SVN\Git\UpdateSystem\UpdateSystem\obj\Release\UpdateSystem.ZProgressBar.resources
+E:\LocalSVN\SVN\Git\UpdateSystem\UpdateSystem\obj\Release\UpdateSystem.csproj.GenerateResource.Cache
+E:\LocalSVN\SVN\Git\UpdateSystem\UpdateSystem\obj\Release\UpdateSystem.exe
+E:\LocalSVN\SVN\Git\UpdateSystem\UpdateSystem\obj\Release\UpdateSystem.pdb
