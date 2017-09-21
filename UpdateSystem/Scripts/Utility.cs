@@ -226,6 +226,7 @@ namespace UpdateSystem
                 return false;
             }
         }
+
         #endregion
 
         #region 处理异常

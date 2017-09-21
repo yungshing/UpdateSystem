@@ -67,7 +67,7 @@ namespace UpdateSystem
             _SetDownloadTime();
             downloadThread = new Thread(() =>
             {
-                _DownloadConfig();
+                _DownloadVersion_C();
                 _DownloadUpdateFiles();
                 doDownloadOver();
                 downloadThread.Abort();
@@ -87,7 +87,10 @@ namespace UpdateSystem
             ftp.SetShowRemainTime(doShowRemainTime);
             ftp.SetDownloadPercent(doShowFilePercent);
         }
-        private void _DownloadConfig()
+        /// <summary>
+        /// 下载Version-C.config文件
+        /// </summary>
+        private void _DownloadVersion_C()
         {
             if (ftp != null)
             {
@@ -152,11 +155,51 @@ namespace UpdateSystem
             {
                 ftp.Dispose();
             }
+            _AnalysisWebVersion_C();
+            GlobalData.ftpAddress.AllAddress = GlobalData.localXML.x_FTPAddress;
+            ftp = new FTPDownload(GlobalData.localXML.x_FtpAccount.Username, GlobalData.localXML.x_FtpAccount.Password);
+            SetFormUIEvent();
+            for (int i = 0; i < GlobalData.needUpdateFiles.Count; i++)
+            {
+                GlobalEvent.WriteLog("下载第" + i.ToString() + "个文件 : " + GlobalData.needUpdateFiles[i].Name);
+
+                RundoShowDownloadFileInfo((i + 1).ToString() + "/" + GlobalData.needUpdateFiles.Count.ToString());
+                RundoShowFilesCountBar(i, GlobalData.needUpdateFiles.Count);
+                float f = (float)i / (float)GlobalData.needUpdateFiles.Count;
+                f = f * 100f;
+                RundoShowFileCountPercent(((int)f).ToString() + "%");
+                var dP = Path.Combine(GlobalData.ftpAddress.CurrAddress, GlobalData.needUpdateFiles[i].Address);
+                var sP = Path.Combine(GlobalData.filePath.UpdatePath, GlobalData.needUpdateFiles[i].Address);
+                var d1 = new FileInfo(sP);
+                if (!Directory.Exists(d1.Directory.FullName))
+                {
+                    Directory.CreateDirectory(d1.Directory.FullName);
+                }
+                GlobalEvent.WriteLog("地址：" + dP);
+
+                GlobalEvent.WriteLog("DownloadFormFollow:_DownloadConfig():111");
+                if (!ftp.Download(dP.Replace("\\", "/"), sP))
+                {
+                    ExceptionHandle(ftp.E);
+                    i--;
+                }
+            }
+            if (ftp != null)
+            {
+                ftp.Dispose();
+            }
+        }
+        /// <summary>
+        /// 解析从云端下载的Version-C.config文件
+        /// 对比本地Version-C.config文件，获取需要更新的文件
+        /// </summary>
+        private void _AnalysisWebVersion_C()
+        {
             GlobalData.webXML = Utility.Decode<VersionXML>(GlobalData.filePath.ConfigDataFullPath_Tmp);
             if (GlobalData.IsFirstUse)
             {
                 GlobalData.localXML = Utility.Decode<VersionXML>(GlobalData.filePath.ConfigDataFullPath_Tmp);
-                
+
                 GlobalData.needUpdateFiles.Clear();
                 GlobalData.needUpdateFiles.AddRange(GlobalData.webXML.x_FileList.x_base.Files);
                 GlobalData.needUpdateFiles.AddRange(GlobalData.webXML.x_FileList.x_other.Files);
@@ -185,39 +228,8 @@ namespace UpdateSystem
             {
                 GetDifferentFiles();
             }
-            GlobalData.ftpAddress.AllAddress = GlobalData.localXML.x_FTPAddress;
-            ftp = new FTPDownload(GlobalData.localXML.x_FtpAccount.Username, GlobalData.localXML.x_FtpAccount.Password);
-            SetFormUIEvent();
-            for (int i = 0; i < GlobalData.needUpdateFiles.Count; i++)
-            {
-                GlobalEvent.WriteLog("下载第" + i.ToString() + "个文件 : " + GlobalData.needUpdateFiles[i].Name);
-
-                RundoShowDownloadFileInfo((i + 1).ToString() + "/" + GlobalData.needUpdateFiles.Count.ToString());
-                RundoShowFilesCountBar(i, GlobalData.needUpdateFiles.Count);
-                float f = (float)i / (float)GlobalData.needUpdateFiles.Count;
-                f = f * 100f;
-                RundoShowFileCountPercent(((int)f).ToString() + "%");
-                var dP = Path.Combine(GlobalData.ftpAddress.CurrAddress, GlobalData.needUpdateFiles[i].Address);
-                var sP = Path.Combine(GlobalData.filePath .UpdatePath, GlobalData.needUpdateFiles[i].Address);
-                var d1 = new FileInfo(sP);
-                if (!Directory.Exists(d1.Directory.FullName))
-                {
-                    Directory.CreateDirectory(d1.Directory.FullName);
-                }
-                GlobalEvent.WriteLog("地址：" + dP);
-
-                GlobalEvent.WriteLog("DownloadFormFollow:_DownloadConfig():111");
-                if (!ftp.Download(dP.Replace("\\","/"), sP))
-                {
-                    ExceptionHandle(ftp.E);
-                    i--;
-                }
-            }
-            if (ftp != null)
-            {
-                ftp.Dispose();
-            }
         }
+
         bool GetDifferentFiles()
         {
             GlobalData.needUpdateFiles.Clear();
@@ -348,14 +360,16 @@ namespace UpdateSystem
                     RundoShowDownloadFileInfo(Utility.E_Disconnect);
                     RundoShowRemainTime(null);
                     RundoShowDownloadSpeed(null);
-                    while (!Utility.IsConnectInternetPing())
-                    {
-                        continue;
-                    }
+                    //while (!Utility.IsConnectInternetPing())
+                    //{
+                    //    continue;
+                    //}
+                    CheckInternet(3);
                     break;
                 case Utility.EcpType.LimitConnect:
                     GlobalData.ftpAddress.CurrIndex++;
                     doShowDownloadFileInfo(Utility.E_LimitConnect + ":" + GlobalData.ftpAddress.CurrIndex.ToString() + "号");
+
                     break;
                 case Utility.EcpType.SerDisconnect:
                     doShowDownloadFileInfo(Utility.E_SerDisconnect);
@@ -373,7 +387,29 @@ namespace UpdateSystem
                     break;
             }
         }
-
+        /// <summary>
+        /// 每隔多少秒检测一次是否连网
+        /// 线程会被一直堵塞在检测连网，直到达到限定的检测时间
+        /// </summary>
+        /// <param name="second"></param>
+        /// <param name="limit">尝试多长时间后，不在检测，直接返回，为-1时，则一直检测直到连网</param>
+        /// <returns></returns>
+        private bool CheckInternet(int second,int limit = -1)
+        {
+            bool b = Utility.IsConnectInternetPing();
+            if (b)
+                return b;
+            System.Diagnostics.Stopwatch st = new System.Diagnostics.Stopwatch();
+            while(!b)
+            {
+                if (st.ElapsedMilliseconds >= second * 1000)
+                {
+                    b = Utility.IsConnectInternetPing();
+                }
+            }
+            st.Stop();
+            return b;
+        }
         public void DeleteConfig()
         {
 

@@ -24,3 +24,6 @@ E:\LocalSVN\UpdateSystem\UpdateSystem\obj\Debug\UpdateSystem.Resources.UI.resour
 E:\LocalSVN\UpdateSystem\UpdateSystem\obj\Debug\UpdateSystem.MinCloseBtn.resources
 E:\LocalSVN\UpdateSystem\UpdateSystem\obj\Debug\UpdateSystem.ZProgressBar.resources
 E:\LocalSVN\UpdateSystem\UpdateSystem\obj\Debug\UpdateSystem.csproj.GenerateResource.Cache
+E:\LocalSVN\SVN\Git\UpdateSystem\UpdateSystem\bin\Debug\UpdateSystem.exe.config
+E:\LocalSVN\SVN\Git\UpdateSystem\UpdateSystem\obj\Debug\UpdateSystem.exe
+E:\LocalSVN\SVN\Git\UpdateSystem\UpdateSystem\obj\Debug\UpdateSystem.pdb

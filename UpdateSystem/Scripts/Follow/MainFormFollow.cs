@@ -261,57 +261,6 @@ namespace UpdateSystem
             }
             GlobalData.WebVersion = dataXml.SelectSingleNode("ClientVersion").Attributes[0].Value;
         }
-        public static bool GetDifferentFiles()
-        {
-            GlobalData.needUpdateFiles.Clear();
-            GlobalData.needDeleteFiles.Clear();
-            Action<List<XMLFileInfo>, List<XMLFileInfo>> _A = (_local,_web) =>
-            {
-                GlobalData.needUpdateFiles.AddRange(_web);
-                GlobalData.needDeleteFiles.AddRange(_local);
-                foreach (var l in _local)
-                {
-                    foreach (var w in _web)
-                    {
-                        if (l.Name == w.Name)
-                        {
-                            if (l.Hash == w.Hash)
-                            {
-                                GlobalData.needUpdateFiles.Remove(w);
-                            }
-                            GlobalData.needDeleteFiles.Remove(l);
-                        }
-                    }
-                }
-            };
-
-
-            _A(GlobalData.localXML.x_FileList.x_base.Files, GlobalData.webXML.x_FileList.x_base.Files);
-            _A(GlobalData.localXML.x_FileList.x_other.Files, GlobalData.webXML.x_FileList.x_other.Files);
-            foreach (var item in GlobalData.UpdateNodesName)
-            {
-                var o = new List<XMLFileInfo>();
-                var n = new List<XMLFileInfo>();
-                foreach (var i1 in GlobalData.localXML.x_FileList.x_change)
-                {
-                    if (i1.Folder == item)
-                    {
-                        o = i1.Files;
-                    }
-                }
-                foreach (var i1 in GlobalData.webXML.x_FileList.x_change)
-                {
-                    if (i1.Folder == item)
-                    {
-                        n = i1.Files;
-                    }
-                }
-                _A(o, n);
-            }
-
-            return GlobalData.needUpdateFiles.Count > 0;
-        }
-
         /// <summary>
         /// 检测更新软件是否有更新
         /// step 
