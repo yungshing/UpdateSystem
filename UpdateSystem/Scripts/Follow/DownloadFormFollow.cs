@@ -351,6 +351,7 @@ namespace UpdateSystem
         }
         protected override void ExceptionHandle(Exception e)
         {
+            Thread.Sleep(1000);  //****出现异常后，延迟1秒后，在处理异常
             var eType = Utility.SetException(e);
             switch (eType)
             {
@@ -371,14 +372,22 @@ namespace UpdateSystem
                     CheckInternet(3);
                     break;
                 case Utility.EcpType.LimitConnect:
+                    System.Diagnostics.Stopwatch sw = new System.Diagnostics.Stopwatch();
+                    sw.Start();
                     GlobalData.ftpAddress.CurrIndex++;
                     doShowDownloadFileInfo(Utility.E_LimitConnect + ":" + GlobalData.ftpAddress.CurrIndex.ToString() + "号");
-
+                    System.Windows.Forms.Application.DoEvents();
+                    while (sw.ElapsedMilliseconds <= 3000) ///**********延迟
+                    {
+                        continue;
+                    }
                     break;
                 case Utility.EcpType.SerDisconnect:
                     doShowDownloadFileInfo(Utility.E_SerDisconnect);
                     break;
                 case Utility.EcpType.ReceiveError:
+                    doShowDownloadFileInfo(Utility.E_ReceiveError);
+
                     break;
                 case Utility.EcpType.ErrorPw:
                     ftp = new FTPDownload("anonymous", "yungshing@tom.com");
@@ -393,7 +402,7 @@ namespace UpdateSystem
         }
         /// <summary>
         /// 每隔多少秒检测一次是否连网
-        /// 线程会被一直堵塞在检测连网，直到达到限定的检测时间
+        /// 线程会被一直堵塞在检测连网，直到达到限定的检测时间(0~59)
         /// </summary>
         /// <param name="second"></param>
         /// <param name="limit">尝试多长时间后，不在检测，直接返回，为-1时，则一直检测直到连网</param>
@@ -406,9 +415,10 @@ namespace UpdateSystem
             System.Diagnostics.Stopwatch st = new System.Diagnostics.Stopwatch();
             while(!b)
             {
-                if (st.ElapsedMilliseconds >= second * 1000)
+                if (st.Elapsed.Seconds >= second)
                 {
                     b = Utility.IsConnectInternetPing();
+                    st.Reset();
                 }
             }
             st.Stop();

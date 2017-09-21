@@ -338,12 +338,22 @@ namespace UpdateSystem
             ErrorPw,
         }
         #endregion
-
+        public static void Delay(int secode)
+        {
+            System.Diagnostics.Stopwatch sw = new Stopwatch();
+            sw.Start();
+            while(sw.Elapsed.Seconds <= secode)
+            {
+                continue;
+            }
+            sw.Stop();
+        }
         #region 异常信息内容
         public const string E_Disconnect = "无网络连接";
         public const string E_LimitConnect = "当前网络阻塞，尝试连接服务器";
         public const string E_SerDisconnect = "服务器故障，请稍后在试";
         public const string E_Default = "未知错误";
+        public const string E_ReceiveError = "重新接收数据";
         #endregion
 
         public static void ExitApp()
