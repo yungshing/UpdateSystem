@@ -78,10 +78,6 @@ namespace UpdateSystem
                 {
                     continue;
                 }
-                if (savePath.Contains("data.config.tmp"))
-                {
-                    GlobalEvent.SaveDebugLog();
-                }
                 _SetProgressBar(0, 1);
                 _ShowPercent("0%");
                 ConnectFTP(downloadPath);

@@ -186,6 +186,14 @@ namespace UpdateSystem
             }
             File.Copy(op, d);
         }
+
+        public static void DeleteFile(string path)
+        {
+            if (File.Exists(path))
+            {
+                File.Delete(path);
+            }
+        }
         #region 处理网络连接
         public static bool IsConnectInternet()
         {

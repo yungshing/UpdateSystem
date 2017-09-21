@@ -446,6 +446,7 @@ namespace UpdateSystem
                         GlobalEvent.WriteLog(t[i].Address);
                         GlobalEvent.WriteLog("云MD5：" + t[i].Hash);
                         GlobalEvent.WriteLog("本地MD5：" + md5);
+                        Utility.DeleteFile(tP);
                     }
                     #endregion
                 }
