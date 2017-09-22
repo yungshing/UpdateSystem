@@ -51,7 +51,7 @@ namespace UpdateSystem
         public event GlobalEvent.CallV_S doShowTimes;
         public DownloadFormFollow()
         {
-            GlobalData.IsUpdating = true;
+            GlobalData.isUpdating = true;
         }
 
         private FTPDownload ftp;
@@ -64,14 +64,14 @@ namespace UpdateSystem
             {
                 downloadThread.Abort();
             }
-            _SetDownloadTime();
+            ShowDownloadTime();
             downloadThread = new Thread(() =>
             {
-                _DownloadVersion_C();
-                _DownloadUpdateFiles(GlobalData.needUpdateFiles);
+                DownloadVersion_C();
+                DownloadUpdateFiles(GlobalData.needUpdateFiles);
                 while(!CheckFiles())
                 {
-                    _DownloadUpdateFiles(GlobalData.failureFiles);
+                    DownloadUpdateFiles(GlobalData.failureFiles);
                 }
                 doDownloadOver();
                 downloadThread.Abort();
@@ -94,7 +94,7 @@ namespace UpdateSystem
         /// <summary>
         /// 下载Version-C.config文件
         /// </summary>
-        private void _DownloadVersion_C()
+        private void DownloadVersion_C()
         {
             if (ftp != null)
             {
@@ -102,7 +102,7 @@ namespace UpdateSystem
             }
             GlobalEvent.WriteLog("下载version-C.config");
             ftp = new FTPDownload(GlobalData.mAccount.UserName, GlobalData.mAccount.Password);
-            if (GlobalData.IsFirstUse)
+            if (GlobalData.isFirstUse)
             {
                 ftp = new FTPDownload(GlobalData.mAccount.UserName, GlobalData.mAccount.Password);
                 GlobalData.WebXmlAddress = GlobalData.mAccount.Webaddr;
@@ -128,38 +128,35 @@ namespace UpdateSystem
             while (!ifd)
             {
                 Utility.SetException(ftp.E);
-
-                GlobalEvent.WriteLog("DownloadFormFollow:_DownloadConfig():118");
+                if (File.Exists(GlobalData.filePath.ConfigDataFullPath_Tmp + ".zzfz"))
+                {
+                    File.Delete(GlobalData.filePath.ConfigDataFullPath_Tmp + ".zzfz");
+                }
                 ifd = ftp.Download(GlobalData.WebXmlAddress.Replace("\\", "/"), GlobalData.filePath.ConfigDataFullPath_Tmp);
             }
-            if (GlobalData.IsFirstUse)
+            if (GlobalData.isFirstUse)
             {
                 var p = Path.Combine(Directory.GetCurrentDirectory(), "data.config.tmp");
                 if (File.Exists(p))
                 {
                     File.Delete(p);
                 }
-
-                GlobalEvent.WriteLog("DownloadFormFollow:_DownloadConfig():128");
-                var db = ftp.Download(GlobalData.DataWebAddress, p);
+                
+                var db = ftp.Download(GlobalData.dataWebAddress, p);
                 while (!db)
                 {
-                    GlobalEvent.WriteLog("DownloadFormFollow:_DownloadConfig():134");
-                    db = ftp.Download(GlobalData.DataWebAddress, p);
+                    db = ftp.Download(GlobalData.dataWebAddress, p);
                 }
-                GlobalData.webXML = Utility.Decode<VersionXML>(GlobalData.filePath.ConfigDataFullPath_Tmp);
-                GlobalData.localXML = GlobalData.webXML;
             }
             ftp.Dispose();
-            GlobalEvent.WriteLog("下载version-C.config.................完成");
         }
-        private void _DownloadUpdateFiles(List<XMLFileInfo> xfi)
+        private void DownloadUpdateFiles(List<XMLFileInfo> xfi)
         {
             if (ftp != null)
             {
                 ftp.Dispose();
             }
-            _AnalysisWebVersion_C();
+            AnalysisWebVersion_C();
             GlobalData.ftpAddress.AllAddress = GlobalData.localXML.x_FTPAddress;
             ftp = new FTPDownload(GlobalData.localXML.x_FtpAccount.Username, GlobalData.localXML.x_FtpAccount.Password);
             SetFormUIEvent();
@@ -197,10 +194,10 @@ namespace UpdateSystem
         /// 解析从云端下载的Version-C.config文件
         /// 对比本地Version-C.config文件，获取需要更新的文件
         /// </summary>
-        private void _AnalysisWebVersion_C()
+        private void AnalysisWebVersion_C()
         {
             GlobalData.webXML = Utility.Decode<VersionXML>(GlobalData.filePath.ConfigDataFullPath_Tmp);
-            if (GlobalData.IsFirstUse)
+            if (GlobalData.isFirstUse)
             {
                 GlobalData.localXML = Utility.Decode<VersionXML>(GlobalData.filePath.ConfigDataFullPath_Tmp);
 
@@ -210,17 +207,17 @@ namespace UpdateSystem
 
                 foreach (var l in GlobalData.webXML.x_FileList.x_change)
                 {
-                    if (GlobalData.UpdateNodesName.Count > 0)
+                    if (GlobalData.updateNodesName.Count > 0)
                     {
-                        if (GlobalData.UpdateNodesName.Contains(l.Folder))
+                        if (GlobalData.updateNodesName.Contains(l.Folder))
                         {
                             GlobalData.needUpdateFiles.AddRange(l.Files);
                             continue;
                         }
                     }
-                    if (GlobalData.UpdateCarNodesName.Count > 0)
+                    if (GlobalData.updateCarNodesName.Count > 0)
                     {
-                        if (GlobalData.UpdateCarNodesName.Contains(l.Folder))
+                        if (GlobalData.updateCarNodesName.Contains(l.Folder))
                         {
                             GlobalData.needUpdateFiles.AddRange(l.Files);
                             continue;
@@ -261,7 +258,7 @@ namespace UpdateSystem
 
             _A(GlobalData.localXML.x_FileList.x_base.Files, GlobalData.webXML.x_FileList.x_base.Files);
             _A(GlobalData.localXML.x_FileList.x_other.Files, GlobalData.webXML.x_FileList.x_other.Files);
-            foreach (var item in GlobalData.UpdateNodesName)
+            foreach (var item in GlobalData.updateNodesName)
             {
                 var o = new List<XMLFileInfo>();
                 var n = new List<XMLFileInfo>();
@@ -284,7 +281,7 @@ namespace UpdateSystem
 
             return GlobalData.needUpdateFiles.Count > 0;
         }
-        private void _SetDownloadTime()
+        private void ShowDownloadTime()
         {
             if (tim != null)
             {
@@ -365,22 +362,13 @@ namespace UpdateSystem
                     RundoShowDownloadFileInfo(Utility.E_Disconnect);
                     RundoShowRemainTime(null);
                     RundoShowDownloadSpeed(null);
-                    //while (!Utility.IsConnectInternetPing())
-                    //{
-                    //    continue;
-                    //}
                     CheckInternet(3);
                     break;
                 case Utility.EcpType.LimitConnect:
-                    System.Diagnostics.Stopwatch sw = new System.Diagnostics.Stopwatch();
-                    sw.Start();
                     GlobalData.ftpAddress.CurrIndex++;
                     doShowDownloadFileInfo(Utility.E_LimitConnect + ":" + GlobalData.ftpAddress.CurrIndex.ToString() + "号");
                     System.Windows.Forms.Application.DoEvents();
-                    while (sw.ElapsedMilliseconds <= 3000) ///**********延迟
-                    {
-                        continue;
-                    }
+                    Utility.Delay(2); ///**********延迟
                     break;
                 case Utility.EcpType.SerDisconnect:
                     doShowDownloadFileInfo(Utility.E_SerDisconnect);
@@ -413,12 +401,14 @@ namespace UpdateSystem
             if (b)
                 return b;
             System.Diagnostics.Stopwatch st = new System.Diagnostics.Stopwatch();
+            st.Start();
             while(!b)
             {
                 if (st.Elapsed.Seconds >= second)
                 {
                     b = Utility.IsConnectInternetPing();
                     st.Reset();
+                    st.Start();
                 }
             }
             st.Stop();

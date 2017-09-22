@@ -26,11 +26,11 @@ namespace UpdateSystem
         {
             Update_Thread = new Thread(new ThreadStart(()=>
             {
-                GlobalData.CheckedUpdate = follow.OnStart();
+                GlobalData.checkedUpdate = follow.OnStart();
                 ShowProgressBar(1, 1);
                 Application.DoEvents();
                 Thread.Sleep(500);
-                if (!GlobalData.CheckedUpdate)
+                if (!GlobalData.checkedUpdate)
                 {
                     if (Utility.OpenProgram())
                     {

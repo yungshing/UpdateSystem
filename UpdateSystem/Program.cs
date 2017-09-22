@@ -51,7 +51,7 @@ namespace UpdateSystem
                 }
             }
             System.Net.ServicePointManager.DefaultConnectionLimit = 1000;
-            GlobalData.DebugLogName = @"D:\Log_" + DateTime.Now.ToString("MM-dd--HH-mm-ss").Replace(" ", "") + ".txt";
+            GlobalData.debugLogName = @"D:\Log_" + DateTime.Now.ToString("MM-dd--HH-mm-ss").Replace(" ", "") + ".txt";
             Application.Run(new NewMainUI ());
         }
 

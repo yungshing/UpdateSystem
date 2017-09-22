@@ -29,21 +29,18 @@ namespace UpdateSystem
             }
             installThread = new Thread(()=>
             {
-                //if (!_CheckFiles())
-                //{
-                //    installThread.Abort();
-                //}
-                _install();
-                _InstallOver();
+                Install();
+                InstallOver();
             });
             installThread.Start();
         }
         /// <summary>
         /// true: 没有文件损坏
         /// false : 有文件损坏 
+        /// 此方法已作废，检测文件放下下载中了。
         /// </summary>
         /// <returns></returns>
-        private bool _CheckFiles()
+        private bool CheckFiles()
         {
             var t = GlobalData.needUpdateFiles;
             GlobalData.failureFiles = new List<XMLFileInfo>();
@@ -89,7 +86,7 @@ namespace UpdateSystem
             }
             return true;
         }
-        private void _install()
+        private void Install()
         {
             var t = GlobalData.needUpdateFiles;
 
@@ -205,7 +202,7 @@ namespace UpdateSystem
                 doInstallOver();
             }
         }
-        private void _InstallOver()
+        private void InstallOver()
         {
             RundoShowInstallInfo("打开软件中");
             GlobalData.localXML = Utility.Decode<VersionXML>(GlobalData.filePath.ConfigDataFullPath);

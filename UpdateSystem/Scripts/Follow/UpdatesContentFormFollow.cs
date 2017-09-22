@@ -16,12 +16,12 @@ namespace UpdateSystem
         /// <param name="isUpdating"></param>
         public void SetUpdateState(bool isUpdating)
         {
-            GlobalData.IsUpdating = isUpdating;
+            GlobalData.isUpdating = isUpdating;
         }
         public string SetTips()
         {
             string tips = "";
-            if (GlobalData.IsFirstUse)
+            if (GlobalData.isFirstUse)
             {
                 return "首次使用，需要下载全部文件";
             }

@@ -140,19 +140,19 @@ namespace UpdateSystem
             int sec = time - hour * 3600 - min * 60;
             if (hour > 0)
             {
-                return _ShowTime(hour) + ":" + _ShowTime(min) + ":" + _ShowTime(sec);
+                return ShowTime(hour) + ":" + ShowTime(min) + ":" + ShowTime(sec);
             }
             else if (min > 0)
             {
-                return "00:" + _ShowTime(min) + ":" + _ShowTime(sec);
+                return "00:" + ShowTime(min) + ":" + ShowTime(sec);
             }
             else
             {
-                return "00:00:" + _ShowTime(sec);
+                return "00:00:" + ShowTime(sec);
             }
         }
 
-        static string _ShowTime(int time)
+        static string ShowTime(int time)
         {
             if (time < 10)
             {

@@ -11,20 +11,20 @@ namespace UpdateSystem
     {
         private static string webXmlAddress = "ftp://120.76.28.224";
 
-        public static bool IsFirstUse = false;
+        public static bool isFirstUse = false;
 
-        public static string Version = "";
-        public static string WebVersion = "we";
+        public static string version = "";
+        public static string webVersion = "we";
         /// <summary>
         /// 另一张表，检测要下载哪些文件用的
         /// </summary>
-        public static string DataWebAddress = "";
+        public static string dataWebAddress = "";
         /// <summary>
         /// 是否正在下载更新文件
         /// 如果true，则后台不检测更新
         /// 如果false,则后台在指定时间间隔检测更新
         /// </summary>
-        public static bool IsUpdating = false;
+        public static bool isUpdating = false;
         public static string WebXmlAddress
         {
             get
@@ -63,21 +63,21 @@ namespace UpdateSystem
         /// <summary>
         /// 检测到了有更新 ？
         /// </summary>
-        public static bool CheckedUpdate = false;
+        public static bool checkedUpdate = false;
         /// <summary>
         /// 更新检测间隔时间
         /// </summary>
-        public static int UpdateTime = 7200;
-        public static string[] UpdateText = new string[1] { "优化版本，修复一些Bug" };
+        public static int updateTime = 7200;
+        public static string[] updateText = new string[1] { "优化版本，修复一些Bug" };
         public static bool isPause = false;
 
        // public static Form1 mainForm;
 
 
-        public static List<string> UpdateNodesName = new List<string>();
-        public static List<string> UpdateCarNodesName = new List<string>();
+        public static List<string> updateNodesName = new List<string>();
+        public static List<string> updateCarNodesName = new List<string>();
 
-        public static string DebugLogName = "Log";
+        public static string debugLogName = "Log";
 
         public static bool isDebug = false;
        
@@ -106,7 +106,7 @@ namespace UpdateSystem
         {
             if (!GlobalData.isDebug) return;
             //string v = @"D:\Log_" + DateTime.Now.ToString("MM-dd--HH-mm-ss").Replace(" ","") + ".txt";
-            string v = GlobalData.DebugLogName;
+            string v = GlobalData.debugLogName;
             if (File.Exists(v))
             {
                 File.Delete(v);

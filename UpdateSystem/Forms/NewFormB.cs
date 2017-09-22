@@ -44,12 +44,12 @@ namespace UpdateSystem
         {
             btnType = BtnType.Update;
 
-            version_lab.Visible = start_btn.Visible = !GlobalData.IsFirstUse;
-            version_lab.Text = GlobalData.Version;
-            if (GlobalData.CheckedUpdate)
+            version_lab.Visible = start_btn.Visible = !GlobalData.isFirstUse;
+            version_lab.Text = GlobalData.version;
+            if (GlobalData.checkedUpdate)
             {
                 updateinfo_lab.Text = "";
-                foreach (var item in GlobalData.UpdateText)
+                foreach (var item in GlobalData.updateText)
                 {
                     updateinfo_lab.Text += item;
                 }

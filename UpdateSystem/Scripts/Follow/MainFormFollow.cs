@@ -26,14 +26,14 @@ namespace UpdateSystem
         /// </summary>
         public override void Initaialize()
         {
-            GlobalData.CheckedUpdate = false;
+            GlobalData.checkedUpdate = false;
         }
 
         /// <summary>
         /// 是否连接到互联网
         /// </summary>
         /// <returns></returns>
-        private bool _CheckInternet()
+        private bool CheckInternet()
         {
             return Utility.IsConnectInternetPing();
         }
@@ -43,8 +43,8 @@ namespace UpdateSystem
         /// <returns></returns>
         public bool CheckFirstUse()
         {
-            GlobalData.IsFirstUse = !File.Exists(GlobalData.filePath.ConfigDataFullPath);
-            return GlobalData.IsFirstUse;
+            GlobalData.isFirstUse = !File.Exists(GlobalData.filePath.ConfigDataFullPath);
+            return GlobalData.isFirstUse;
         }
         /// <summary>
         /// 程序启动时执行 
@@ -53,36 +53,34 @@ namespace UpdateSystem
         /// </summary>
         public bool OnStart()
         {
+            ///step  ---------------- 检测data.config文件是否存在，不存在，则退出程序
+            DataConfigExist();
+
+            ///step  ------------解析data.config文件
+            AnalyseDataConfig();
+            
+            ///step---------解析Version-C.config
+            AnalysisLocalXML();
+
             ///step ---------延迟启动，如果没网，则等待一分钟检测，如果有网，直接进入下一流程
             if (!DelayStart())
             {
-                if (CheckFirstUse())
-                {
-                    return true;
-                }
-                AnalysisLocalXML();
-                return false;
+                return CheckFirstUse();
             }
-
-            ///step 2 ---------------- 检测data.config文件是否存在，不存在，则退出程序
-            DataConfigExist();
-
-            ///step 3 ------------解析data.config文件
-            AnalyseDataConfig();
-
-            ///step 1 ------------------- 启动程序 版本自检
+            
+            ///step  ------------------- 启动程序 版本自检
             CheckSelfVersion();
 
-            ///step 4 -------------检测是否有必要下载data.confg
+            ///step  -------------检测是否有必要下载data.confg
             if (!NeedDownloadDataConfig())
             {
                 return true;
             }
 
-            ///step 5 --------------下载data.config,保存为data.config.tmp
+            ///step  --------------下载data.config,保存为data.config.tmp
             DownloadDataConfig();
 
-            ///step 6 ------------对比data.config和data.config.tmp中version,检测是否有更新
+            ///step  ------------对比data.config和data.config.tmp中version,检测是否有更新
             return ComparerDataConfig();
         }
 
@@ -96,7 +94,7 @@ namespace UpdateSystem
             System.Diagnostics.Stopwatch s = new System.Diagnostics.Stopwatch();
             s.Start();
             bool success = false;
-            while (!(success = _CheckInternet()))
+            while (!(success = CheckInternet()))
             {
                 doShowProgressBar((int)(s.ElapsedMilliseconds * 0.001f), 120);
                 if (s.ElapsedMilliseconds >= 60 * 1000)
@@ -116,13 +114,13 @@ namespace UpdateSystem
         {
             if (CheckFirstUse())
             {
-                GlobalData.UpdateText = new string[] { "首次更新将会下载全部文件需要一定时间，请耐心等待。" };
+                GlobalData.updateText = new string[] { "首次更新将会下载全部文件需要一定时间，请耐心等待。" };
                 return false;
             }
             else
             {
                 AnalysisLocalXML();
-                if (!_CheckInternet())
+                if (!CheckInternet())
                 {
                     return false;
                 }
@@ -131,13 +129,19 @@ namespace UpdateSystem
         }
         /// <summary>
         /// 解析本地Version-C文件
+        /// True:非首次使用，解析文件
+        /// False:首次使用，不解析 
         /// </summary>
         /// <returns></returns>
         private bool AnalysisLocalXML()
         {
-            ///读取本地Version-C文件
-            GlobalData.localXML = Utility.Decode<VersionXML>(GlobalData.filePath.ConfigDataFullPath);
-            return true;
+            if (!CheckFirstUse())
+            {
+                ///读取本地Version-C文件
+                GlobalData.localXML = Utility.Decode<VersionXML>(GlobalData.filePath.ConfigDataFullPath);
+                return true;
+            }
+            return false;
         }
         /// <summary>
         /// 对比data.config和data.config.tmp中version,检测是否有更新
@@ -149,7 +153,7 @@ namespace UpdateSystem
         {
             //var webDataXml = Utility.ODecode(Path.Combine(Directory.GetCurrentDirectory(), "data.config.tmp"));
             //return GlobalData.Version != webDataXml.SelectSingleNode("ClientVersion").Attributes[0].Value;
-            return GlobalData.Version != GlobalData.WebVersion;
+            return GlobalData.version != GlobalData.webVersion;
         }
 
         /// <summary>
@@ -159,8 +163,8 @@ namespace UpdateSystem
         {
             var p = Path.Combine(Directory.GetCurrentDirectory(), "data.config");
             var xmlDoc = Utility.ODecode(p);
-            GlobalData.UpdateCarNodesName.Clear();
-            GlobalData.UpdateNodesName.Clear();
+            GlobalData.updateCarNodesName.Clear();
+            GlobalData.updateNodesName.Clear();
             if (xmlDoc.SelectSingleNode("Version").SelectSingleNode("FileHashList") != null)
             {
                 try
@@ -168,7 +172,7 @@ namespace UpdateSystem
                     var v = xmlDoc.SelectSingleNode("Version").SelectSingleNode("FileHashList").SelectNodes("FileName");
                     for (int i = 0; i < v.Count; i++)
                     {
-                        GlobalData.UpdateNodesName.Add(v[i].Attributes[0].InnerText.Replace(" ", ""));
+                        GlobalData.updateNodesName.Add(v[i].Attributes[0].InnerText.Replace(" ", ""));
                     }
                 }
                 catch { }
@@ -178,7 +182,7 @@ namespace UpdateSystem
 
                     for (int i = 0; i < c.Count; i++)
                     {
-                        GlobalData.UpdateNodesName.Add(c[i].Attributes[0].InnerText.Replace(" ", ""));
+                        GlobalData.updateNodesName.Add(c[i].Attributes[0].InnerText.Replace(" ", ""));
                     }
                 }
                 catch
@@ -200,11 +204,11 @@ namespace UpdateSystem
             }
             if (xmlDoc.SelectSingleNode("Version").SelectSingleNode("ClientVersion") != null)
             {
-                GlobalData.Version = xmlDoc.SelectSingleNode("Version").SelectSingleNode("ClientVersion ").Attributes[0].Value;
+                GlobalData.version = xmlDoc.SelectSingleNode("Version").SelectSingleNode("ClientVersion ").Attributes[0].Value;
             }
             if (xmlDoc.SelectSingleNode("Version").SelectSingleNode("Path") != null)
             {
-                GlobalData.DataWebAddress = xmlDoc.SelectSingleNode("Version").SelectSingleNode("Path").Attributes[0].Value;
+                GlobalData.dataWebAddress = xmlDoc.SelectSingleNode("Version").SelectSingleNode("Path").Attributes[0].Value;
             }
 
         }
@@ -242,24 +246,24 @@ namespace UpdateSystem
             ftp.SetProgerssBar(doShowProgressBar);
 
             GlobalEvent.WriteLog("MainFormFollow:DownloadDataConfig():223");
-            var db = ftp.Download(GlobalData.DataWebAddress, p);
+            var db = ftp.Download(GlobalData.dataWebAddress, p);
             while (!db)
             {
                 GlobalEvent.WriteLog("MainFormFollow:DownloadDataConfig():226");
-                db = ftp.Download(GlobalData.DataWebAddress, p);
+                db = ftp.Download(GlobalData.dataWebAddress, p);
             }
             ftp.Dispose();
             var dataXml = Utility.ODecode(p).SelectSingleNode("Version");
             if (dataXml.SelectSingleNode("UpdateText") != null)
             {
                 var updates = dataXml.SelectSingleNode("UpdateText").ChildNodes;
-                GlobalData.UpdateText = new string[updates.Count];
+                GlobalData.updateText = new string[updates.Count];
                 for (int i = 0; i < updates.Count; i++)
                 {
-                    GlobalData.UpdateText[i] = updates[i].InnerText.TrimEnd() + "\n";
+                    GlobalData.updateText[i] = updates[i].InnerText.TrimEnd() + "\n";
                 }
             }
-            GlobalData.WebVersion = dataXml.SelectSingleNode("ClientVersion").Attributes[0].Value;
+            GlobalData.webVersion = dataXml.SelectSingleNode("ClientVersion").Attributes[0].Value;
         }
         /// <summary>
         /// 检测更新软件是否有更新
@@ -267,7 +271,7 @@ namespace UpdateSystem
         /// </summary>
         private void CheckSelfVersion()
         {
-            if (!_CheckInternet())
+            if (!CheckInternet())
             {
                 return;
             }
