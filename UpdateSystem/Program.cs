@@ -34,22 +34,21 @@ namespace UpdateSystem
             }
             run.ReleaseMutex();
 #endif
-            if (HadInstance())
+            if (args.Length > 0)
+            {
+                if (args[0] == "-debug")
+                {
+                    GlobalData.isDebug = true;
+                }
+            }
+            if (!GlobalData.isDebug && HadInstance())
             {
                 MessageBox.Show("程序正在运行");
                 Application.Exit();
                 return;
             }
-            var v = Environment.Version;
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            if (args .Length >0)
-            {
-                if (args [0] == "-debug")
-                {
-                    GlobalData.isDebug = true;
-                }
-            }
             System.Net.ServicePointManager.DefaultConnectionLimit = 1000;
             GlobalData.debugLogName = @"D:\Log_" + DateTime.Now.ToString("MM-dd--HH-mm-ss").Replace(" ", "") + ".txt";
             Application.Run(new NewMainUI ());
@@ -57,6 +56,10 @@ namespace UpdateSystem
 
         static bool HadInstance()
         {
+            if (GlobalData.isDebug)
+            {
+                return false;
+            }
             int sum = 0;
             foreach (var item in Process.GetProcesses())
             {
@@ -64,7 +67,6 @@ namespace UpdateSystem
                     sum ++;
             }
             return sum >= 2;
-            //return false;
         }
     }
 }

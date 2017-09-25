@@ -39,7 +39,14 @@ namespace Launch
         {
             Process p = new Process();
             var path = Path.Combine(Environment.CurrentDirectory, "UpdateSystem.exe");
-            Process.Start(path);
+            if (!Program.isAlpha)
+            {
+                Process.Start(path);
+            }
+            else
+            {
+                Process.Start(path,"-debug");
+            }
         }
     }
 }

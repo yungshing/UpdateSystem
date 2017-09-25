@@ -41,6 +41,7 @@
             this.start_btn = new UpdateSystem.Scripts.Component.ZButtn();
             this.mix_btn = new UpdateSystem.Scripts.Component.ZButtn();
             this.minCloseBtn1 = new UpdateSystem.MinCloseBtn();
+            this.alpha_lab = new System.Windows.Forms.Label();
             ((System.ComponentModel.ISupportInitialize)(this.info_pro)).BeginInit();
             this.panel1.SuspendLayout();
             this.flowLayoutPanel1.SuspendLayout();
@@ -139,7 +140,7 @@
             // 
             // button1
             // 
-            this.button1.Location = new System.Drawing.Point(572, 267);
+            this.button1.Location = new System.Drawing.Point(619, 281);
             this.button1.Name = "button1";
             this.button1.Size = new System.Drawing.Size(75, 23);
             this.button1.TabIndex = 14;
@@ -183,6 +184,18 @@
             this.minCloseBtn1.Size = new System.Drawing.Size(86, 30);
             this.minCloseBtn1.TabIndex = 3;
             // 
+            // alpha_lab
+            // 
+            this.alpha_lab.AutoSize = true;
+            this.alpha_lab.BackColor = System.Drawing.Color.Transparent;
+            this.alpha_lab.Font = new System.Drawing.Font("宋体", 15F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+            this.alpha_lab.ForeColor = System.Drawing.Color.Beige;
+            this.alpha_lab.Location = new System.Drawing.Point(423, 297);
+            this.alpha_lab.Name = "alpha_lab";
+            this.alpha_lab.Size = new System.Drawing.Size(79, 20);
+            this.alpha_lab.TabIndex = 15;
+            this.alpha_lab.Text = "Alpha版";
+            // 
             // NewFormB
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
@@ -191,6 +204,7 @@
             this.BackgroundImage = global::UpdateSystem.Properties.Resources.UI_BG;
             this.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
             this.ClientSize = new System.Drawing.Size(802, 602);
+            this.Controls.Add(this.alpha_lab);
             this.Controls.Add(this.button1);
             this.Controls.Add(this.flowLayoutPanel1);
             this.Controls.Add(this.start_btn);
@@ -234,5 +248,6 @@
         private System.Windows.Forms.FlowLayoutPanel flowLayoutPanel1;
         private System.Windows.Forms.Label time_lab;
         private System.Windows.Forms.Button button1;
+        private System.Windows.Forms.Label alpha_lab;
     }
 }

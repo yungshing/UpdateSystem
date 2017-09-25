@@ -13,7 +13,6 @@ namespace UpdateSystem
         public NewFormB()
         {
             InitializeComponent();
-            //SetClassLong(this.Handle, GCL_STYLE, GetClassLong(this.Handle, GCL_STYLE) | CS_DropSHADOW);
         }
 
         private void SetProgressBar(int value, int max)
@@ -55,7 +54,7 @@ namespace UpdateSystem
                 }
             }
             SetInfoControlVisible(false);
-            button1.Visible = GlobalData.isDebug;
+            Alpha();
         }
 
        
@@ -283,6 +282,16 @@ namespace UpdateSystem
                 mix_btn.Visible = true;
                 mix_btn_Click(null, null);
             }
+        }
+
+        /// <summary>
+        /// 内部测试
+        /// </summary>
+        private void Alpha()
+        {
+            bool visiable = GlobalData.isDebug;
+            button1.Visible = visiable;
+            alpha_lab.Visible = visiable;
         }
     }
 }
