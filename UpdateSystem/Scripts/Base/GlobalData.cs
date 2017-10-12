@@ -70,6 +70,10 @@ namespace UpdateSystem
         public static int updateTime = 7200;
         public static string[] updateText = new string[1] { "优化版本，修复一些Bug" };
         public static bool isPause = false;
+        /// <summary>
+        /// 如果是软件重新自己打开则不需要用户点更新按钮
+        /// </summary>
+        public static bool autoClickUpdateBtn = false;
 
        // public static Form1 mainForm;
 

@@ -36,12 +36,13 @@ namespace UpdateSystem
 #endif
             if (args.Length > 0)
             {
-                if (args[0] == "-debug")
+               switch(args[0])
                 {
-                    GlobalData.isDebug = true;
+                    case "-debug": GlobalData.isDebug = true;break;
+                    case "-auto":GlobalData.autoClickUpdateBtn = true;break;
                 }
             }
-            if (!GlobalData.isDebug && HadInstance())
+            if (GlobalData.isDebug && HadInstance())
             {
                 MessageBox.Show("程序正在运行");
                 Application.Exit();

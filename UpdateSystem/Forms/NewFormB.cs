@@ -39,7 +39,7 @@ namespace UpdateSystem
                 ShowDownloadSpeed("");
             }
         }
-       private void OnShown()
+       private void OnShow()
         {
             btnType = BtnType.Update;
 
@@ -261,7 +261,13 @@ namespace UpdateSystem
             installFollow.doShowInstallInfo += ShowDownloadFileInfo;
             installFollow.doShowMessageBox += ShowMessageBox;
 
-            OnShown();
+            OnShow();
+
+            if (GlobalData.autoClickUpdateBtn)
+            {
+                btnType = BtnType.Update;
+                mix_btn_Click(null,null);
+            }
         }
 
         private void button1_Click(object sender, EventArgs e)

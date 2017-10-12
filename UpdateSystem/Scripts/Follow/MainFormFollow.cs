@@ -185,11 +185,11 @@ namespace UpdateSystem
                 catch { }
                 try
                 {
-                    var c = xmlDoc.SelectSingleNode("Version").SelectSingleNode("FileHashList").SelectNodes("CarModel");
-
+                    //var c = xmlDoc.SelectSingleNode("Version").SelectSingleNode("FileHashList").SelectNodes("CarModel");
+                    var c = xmlDoc.SelectSingleNode("Version").SelectNodes("CarModel");
                     for (int i = 0; i < c.Count; i++)
                     {
-                        GlobalData.updateNodesName.Add(c[i].Attributes[0].InnerText.Replace(" ", ""));
+                        GlobalData.updateCarNodesName.Add(c[i].Attributes[0].InnerText.Replace(" ", ""));
                     }
                 }
                 catch
@@ -250,12 +250,10 @@ namespace UpdateSystem
                 File.Delete(p);
             }
             ftp.SetProgerssBar(doShowProgressBar);
-
-            GlobalEvent.WriteLog("MainFormFollow:DownloadDataConfig():223");
+            
             var db = ftp.Download(GlobalData.dataWebAddress, p);
             while (!db)
             {
-                GlobalEvent.WriteLog("MainFormFollow:DownloadDataConfig():226");
                 db = ftp.Download(GlobalData.dataWebAddress, p);
             }
             ftp.Dispose();

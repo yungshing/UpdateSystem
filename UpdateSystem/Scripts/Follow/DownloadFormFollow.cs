@@ -215,12 +215,25 @@ namespace UpdateSystem
                             continue;
                         }
                     }
-                    if (GlobalData.updateCarNodesName.Count > 0)
+                    if (GlobalData.updateCarNodesName.Count > 0 && l.Folder == "CarModel")
                     {
-                        if (GlobalData.updateCarNodesName.Contains(l.Folder))
+                        //if (GlobalData.updateCarNodesName.Contains(l.Folder))
+                        //{
+                        //    GlobalData.needUpdateFiles.AddRange(l.Files);
+                        //    continue;
+                        //}
+                        foreach (var item in GlobalData.updateCarNodesName)
                         {
-                            GlobalData.needUpdateFiles.AddRange(l.Files);
-                            continue;
+                            foreach (var item1 in l.Files)
+                            {
+                                var fol = "\\CarModel\\" + item;
+                                var fol2 = "/CarModel/" + item;
+                                if (item1.Address.Contains(fol) || item1 .Address .Contains(fol2))
+                                {
+                                    item1.InstallPath = item1.Address.Replace("\\Change\\","\\");
+                                    GlobalData.needUpdateFiles.Add(item1);
+                                }
+                            }
                         }
                     }
                 }
