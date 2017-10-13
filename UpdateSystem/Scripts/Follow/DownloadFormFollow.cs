@@ -49,6 +49,15 @@ namespace UpdateSystem
         /// e.g. 1时1分1秒
         /// </summary>
         public event GlobalEvent.CallV_S doShowTimes;
+        /// <summary>
+        /// 显示版本号
+        /// </summary>
+        public event GlobalEvent.CallV_S doShowVersion;
+        /// <summary>
+        /// 显示更新内容
+        /// </summary>
+        public event GlobalEvent.CallV_S doShowUpdateInfo;
+        public NewFormB form;
         public DownloadFormFollow()
         {
             GlobalData.isUpdating = true;
@@ -57,6 +66,10 @@ namespace UpdateSystem
         private FTPDownload ftp;
         private Thread downloadThread;
         private System.Timers.Timer tim;
+        /// <summary>
+        /// 是否在更新中，服务器又更新了文件
+        /// </summary>
+        private bool isNewUpdate=false ;
 
         public void StartDownload()
         {
@@ -67,12 +80,7 @@ namespace UpdateSystem
             ShowDownloadTime();
             downloadThread = new Thread(() =>
             {
-                DownloadVersion_C();
-                DownloadUpdateFiles(GlobalData.needUpdateFiles);
-                while(!CheckFiles())
-                {
-                    DownloadUpdateFiles(GlobalData.failureFiles);
-                }
+                DownloadAll();
                 doDownloadOver();
                 downloadThread.Abort();
             });
@@ -90,6 +98,27 @@ namespace UpdateSystem
             ftp.SetProgerssBar(doShowDownloadProgressBar);
             ftp.SetShowRemainTime(doShowRemainTime);
             ftp.SetDownloadPercent(doShowFilePercent);
+        }
+        private void DownloadAll()
+        {
+            ///下载配置文件Version-C和data
+            DownloadVersion_C();
+            ///分析需要下载的文件
+            AnalysisWebVersion_C();
+            ///下载需要下载的文件
+            while (!DownloadUpdateFiles(GlobalData.needUpdateFiles) || DownladDataAndAnalysisData())
+            {
+                isNewUpdate = false;
+                ///下载配置文件Version-C和data
+                DownloadVersion_C();
+                ///分析需要下载的文件
+                AnalysisWebVersion_C();
+            }
+            ///检测是否有损坏的文件
+            while (!CheckFiles())
+            {
+                DownloadUpdateFiles(GlobalData.failureFiles);
+            }
         }
         /// <summary>
         /// 下载Version-C.config文件
@@ -150,13 +179,17 @@ namespace UpdateSystem
             }
             ftp.Dispose();
         }
-        private void DownloadUpdateFiles(List<XMLFileInfo> xfi)
+        /// <summary>
+        /// 下载文件
+        /// </summary>
+        /// <param name="xfi"></param>
+        /// <returns>全部下载完成，返回true</returns>
+        private bool DownloadUpdateFiles(List<XMLFileInfo> xfi)
         {
             if (ftp != null)
             {
                 ftp.Dispose();
             }
-            AnalysisWebVersion_C();
             GlobalData.ftpAddress.AllAddress = GlobalData.localXML.x_FTPAddress;
             ftp = new FTPDownload(GlobalData.localXML.x_FtpAccount.Username, GlobalData.localXML.x_FtpAccount.Password);
             SetFormUIEvent();
@@ -177,18 +210,22 @@ namespace UpdateSystem
                     Directory.CreateDirectory(d1.Directory.FullName);
                 }
                 GlobalEvent.WriteLog("地址：" + dP);
-
-                GlobalEvent.WriteLog("DownloadFormFollow:_DownloadConfig():111");
+                
                 if (!ftp.Download(dP.Replace("\\", "/"), sP))
                 {
                     ExceptionHandle(ftp.E);
                     i--;
+                }
+                if (isNewUpdate)
+                {
+                    break;
                 }
             }
             if (ftp != null)
             {
                 ftp.Dispose();
             }
+            return !isNewUpdate;
         }
         /// <summary>
         /// 解析从云端下载的Version-C.config文件
@@ -307,13 +344,13 @@ namespace UpdateSystem
                 tim.AutoReset = true;
                 int t = 0;
                 tim.Elapsed += (D, Z) =>
-               {
-                   if (!Pause)
-                   {
-                       t++;
-                       RundoShowTimes(t.ToString());
-                   }
-               };
+                {
+                    if (!Pause)
+                    {
+                        t++;
+                        RundoShowTimes(t.ToString());
+                    }
+                };
                 tim.Start();
             }
         }
@@ -392,6 +429,9 @@ namespace UpdateSystem
                     break;
                 case Utility.EcpType.ErrorPw:
                     ftp = new FTPDownload("anonymous", "yungshing@tom.com");
+                    break;
+                case Utility.EcpType.FileNotFound:
+                    isNewUpdate = true;
                     break;
                 default:
                     //System.Windows.Forms.MessageBox.Show("未知错误");
@@ -474,6 +514,73 @@ namespace UpdateSystem
                 }
             }
             return !(GlobalData.failureFiles.Count > 0);
+        }
+        /// <summary>
+        /// 如果下载过程中，服务器又发生了更新，则执行
+        /// 有更新返回true
+        /// <returns></returns>
+        /// </summary>
+        private bool DownladDataAndAnalysisData()
+        {
+            FTPDownload ftp = new FTPDownload(GlobalData.localXML.x_FtpAccount.Username, GlobalData.localXML.x_FtpAccount.Password);
+            var p = Path.Combine(Directory.GetCurrentDirectory(), "data.config.tmp");
+            if (File.Exists(p))
+            {
+                File.Delete(p);
+            }
+            var db = ftp.Download(GlobalData.dataWebAddress, p);
+            while (!db)
+            {
+                db = ftp.Download(GlobalData.dataWebAddress, p);
+            }
+            ftp.Dispose();
+            var dataXml = Utility.ODecode(p).SelectSingleNode("Version");
+            var ve = dataXml.SelectSingleNode("ClientVersion").Attributes[0].Value;
+            if (GlobalData.version != ve)
+            {
+                GlobalData.version = ve;
+
+                isNewUpdate = true;
+                GlobalData.updateCarNodesName.Clear();
+                GlobalData.updateNodesName.Clear();
+                if (dataXml.SelectSingleNode("UpdateText") != null)
+                {
+                    var updates = dataXml.SelectSingleNode("UpdateText").ChildNodes;
+                    GlobalData.updateText = new string[updates.Count];
+                    for (int i = 0; i < updates.Count; i++)
+                    {
+                        GlobalData.updateText[i] = updates[i].InnerText.TrimEnd() + "\n";
+                    }
+                    doShowUpdateInfo("");
+                }
+                try
+                {
+                    var v = dataXml.SelectSingleNode("FileHashList").SelectNodes("FileName");
+                    for (int i = 0; i < v.Count; i++)
+                    {
+                        GlobalData.updateNodesName.Add(v[i].Attributes[0].InnerText.Replace(" ", ""));
+                    }
+                }
+                catch { }
+                try
+                {
+                    var c = dataXml.SelectNodes("CarModel");
+                    for (int i = 0; i < c.Count; i++)
+                    {
+                        GlobalData.updateCarNodesName.Add(c[i].Attributes[0].InnerText.Replace(" ", ""));
+                    }
+                }
+                catch
+                {
+
+                }
+                if (!GlobalData.isFirstUse)
+                {
+                    doShowVersion(GlobalData.webVersion);
+                }
+
+            }
+            return isNewUpdate;
         }
         public void DeleteConfig()
         {

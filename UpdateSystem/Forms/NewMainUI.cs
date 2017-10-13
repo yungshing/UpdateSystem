@@ -20,10 +20,10 @@ namespace UpdateSystem
             
             follow = new UpdateSystem.MainFormFollow();
             follow.doShowProgressBar += ShowProgressBar;
-            timer1.Start();
         }
         protected override void OnShown(EventArgs e)
         {
+            timer1.Start();
             Update_Thread = new Thread(new ThreadStart(()=>
             {
                 GlobalData.checkedUpdate = follow.OnStart();

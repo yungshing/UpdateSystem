@@ -251,43 +251,33 @@ namespace UpdateSystem
             {
                 currEcpType = EcpType.AddressError;
             }
-            else if (e is System.Net.WebException)
+            else if (e.Message.Contains("无法连接到远程服务器"))
             {
-                if (e.Message.Contains("无法连接到远程服务器"))
-                {
-                    currEcpType = EcpType.SerDisconnect;
-                }
-                else if (e.Message.Contains("421"))
-                {
-                    currEcpType = EcpType.LimitConnect;
-                }
-                else if (e.Message.Contains("接收时发生错误"))
-                {
-                    currEcpType = EcpType.ReceiveError;
-                }
-                else if (e.Message.Contains("操作超时"))
-                {
-                    currEcpType = EcpType.ReceiveError;
-                }
-                else if (e.Message.Contains("远程主机强迫关闭了一个现有的连接"))
-                {
-                    currEcpType = EcpType.Disconnect;
-                }
-                else if(e.Message.Contains("331 Password required"))
-                {
-                    currEcpType = EcpType.ErrorPw;
-                }
-                else
-                {
-                    currEcpType = EcpType.AddressError;
-                }
+                currEcpType = EcpType.SerDisconnect;
             }
-            else if (e is System.IO.IOException)
+            else if (e.Message.Contains("421"))
             {
-                if (e.Message.Contains("远程主机强迫关闭了一个现有的连接"))
-                {
-                    currEcpType = EcpType.Disconnect;
-                }
+                currEcpType = EcpType.LimitConnect;
+            }
+            else if (e.Message.Contains("接收时发生错误"))
+            {
+                currEcpType = EcpType.ReceiveError;
+            }
+            else if (e.Message.Contains("操作超时"))
+            {
+                currEcpType = EcpType.ReceiveError;
+            }
+            else if (e.Message.Contains("远程主机强迫关闭了一个现有的连接"))
+            {
+                currEcpType = EcpType.Disconnect;
+            }
+            else if (e.Message.Contains("331 Password required"))
+            {
+                currEcpType = EcpType.ErrorPw;
+            }
+            else if (e.Message.Contains("文件不可用"))
+            {
+                currEcpType = EcpType.FileNotFound;
             }
             else if (e is System.Threading.ThreadAbortException)
             {
@@ -299,7 +289,7 @@ namespace UpdateSystem
             {
                 currEcpType = EcpType.Disconnect;
             }
-            GlobalEvent.WriteLog(e.ToString ());
+            GlobalEvent.WriteLog(e.ToString());
             GlobalEvent.SaveDebugLog();
             return currEcpType;
         }
@@ -336,6 +326,10 @@ namespace UpdateSystem
             /// 用户名或者密码错误
             /// </summary>
             ErrorPw,
+            /// <summary>
+            /// 文件不可用
+            /// </summary>
+            FileNotFound,
         }
         #endregion
         public static void Delay(int secode)

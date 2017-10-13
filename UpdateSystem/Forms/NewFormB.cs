@@ -56,7 +56,6 @@ namespace UpdateSystem
             SetInfoControlVisible(false);
             Alpha();
         }
-
        
         private void UIBG_MouseDown(object sender, MouseEventArgs e)
         {
@@ -171,7 +170,33 @@ namespace UpdateSystem
             }
             else
             {
-                this.sum_lab.Text = s;
+                sum_lab.Text = s;
+            }
+        }
+        void ShowUpdateContentInfo(string s)
+        {
+            if (this.updateinfo_lab.InvokeRequired)
+            {
+                this.updateinfo_lab.Invoke(new GlobalEvent.CallV_S(ShowDownloadFileInfo), s);
+            }
+            else
+            {
+                updateinfo_lab.Text = "";
+                foreach (var item in GlobalData.updateText)
+                {
+                    updateinfo_lab.Text += item;
+                }
+            }
+        }
+        void ShowVersion(string v)
+        {
+            if (version_lab.InvokeRequired)
+            {
+                version_lab.Invoke(new GlobalEvent.CallV_S(ShowVersion),v);
+            }
+            else
+            {
+                version_lab.Text = v;
             }
         }
         private void SetMixBtnImage(BtnType bt)
@@ -250,11 +275,14 @@ namespace UpdateSystem
             //TransparencyKey = Color.FromArgb(0, 255, 0);
 
             downloadFollow = new UpdateSystem.DownloadFormFollow();
+            downloadFollow.form = this;
             downloadFollow.doDownloadOver += SetBtnText;
             downloadFollow.doShowFilesCountBar += SetProgressBar;
             downloadFollow.doShowDownloadFileInfo += ShowDownloadFileInfo;
             downloadFollow.doShowDownloadSpeed += ShowDownloadSpeed;
             downloadFollow.doShowTimes += ShowGameTime;
+            downloadFollow.doShowVersion += ShowVersion;
+            downloadFollow.doShowUpdateInfo += ShowUpdateContentInfo;
 
             installFollow = new UpdateSystem.InstallFollow();
             installFollow.doChangeProgressBarValue += SetProgressBar;
@@ -262,12 +290,6 @@ namespace UpdateSystem
             installFollow.doShowMessageBox += ShowMessageBox;
 
             OnShow();
-
-            if (GlobalData.autoClickUpdateBtn)
-            {
-                btnType = BtnType.Update;
-                mix_btn_Click(null,null);
-            }
         }
 
         private void button1_Click(object sender, EventArgs e)

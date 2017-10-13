@@ -1,7 +1,4 @@
-﻿
-#define DEBUG_NO_
-
-using System;
+﻿using System;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
@@ -20,29 +17,14 @@ namespace UpdateSystem
         [STAThread]
         static void Main(string[] args)
         {
-#if DEBUG_NO
-            bool runOne;
-            System.Threading.Mutex run = new System.Threading.Mutex(true, Application.ProductName, out runOne);
-
-            if (!runOne)
-            {
-                MessageBox.Show("程序正在运行");
-                //IntPtr hdc = new IntPtr(1312810);
-                //FlashWindow(hdc, true);
-                Application.Exit();
-                return;
-            }
-            run.ReleaseMutex();
-#endif
             if (args.Length > 0)
             {
                switch(args[0])
                 {
                     case "-debug": GlobalData.isDebug = true;break;
-                    case "-auto":GlobalData.autoClickUpdateBtn = true;break;
                 }
             }
-            if (GlobalData.isDebug && HadInstance())
+            if (!GlobalData.isDebug && HadInstance())
             {
                 MessageBox.Show("程序正在运行");
                 Application.Exit();
@@ -52,7 +34,8 @@ namespace UpdateSystem
             Application.SetCompatibleTextRenderingDefault(false);
             System.Net.ServicePointManager.DefaultConnectionLimit = 1000;
             GlobalData.debugLogName = @"D:\Log_" + DateTime.Now.ToString("MM-dd--HH-mm-ss").Replace(" ", "") + ".txt";
-            Application.Run(new NewMainUI ());
+            GlobalData.mainForm = new UpdateSystem.NewMainUI();
+            Application.Run(GlobalData.mainForm);
         }
 
         static bool HadInstance()

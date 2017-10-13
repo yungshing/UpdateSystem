@@ -172,6 +172,7 @@ namespace UpdateSystem
             var xmlDoc = Utility.ODecode(p);
             GlobalData.updateCarNodesName.Clear();
             GlobalData.updateNodesName.Clear();
+            ///科目 包
             if (xmlDoc.SelectSingleNode("Version").SelectSingleNode("FileHashList") != null)
             {
                 try
@@ -183,20 +184,21 @@ namespace UpdateSystem
                     }
                 }
                 catch { }
-                try
+            }
+            ///车模型
+            try
+            {
+                var c = xmlDoc.SelectSingleNode("Version").SelectNodes("CarModel");
+                for (int i = 0; i < c.Count; i++)
                 {
-                    //var c = xmlDoc.SelectSingleNode("Version").SelectSingleNode("FileHashList").SelectNodes("CarModel");
-                    var c = xmlDoc.SelectSingleNode("Version").SelectNodes("CarModel");
-                    for (int i = 0; i < c.Count; i++)
-                    {
-                        GlobalData.updateCarNodesName.Add(c[i].Attributes[0].InnerText.Replace(" ", ""));
-                    }
-                }
-                catch
-                {
-
+                    GlobalData.updateCarNodesName.Add(c[i].Attributes[0].InnerText.Replace(" ", ""));
                 }
             }
+            catch
+            {
+
+            }
+            ///FTP信息
             try
             {
                 var v = xmlDoc.SelectSingleNode("Version").SelectSingleNode("FTP").Attributes;
