@@ -106,8 +106,9 @@ namespace UpdateSystem
             ///分析需要下载的文件
             AnalysisWebVersion_C();
             ///下载需要下载的文件
-            while (!DownloadUpdateFiles(GlobalData.needUpdateFiles) || DownladDataAndAnalysisData())
+            while (!DownloadUpdateFiles(GlobalData.needUpdateFiles))
             {
+                DownladDataAndAnalysisData();
                 isNewUpdate = false;
                 ///下载配置文件Version-C和data
                 DownloadVersion_C();
@@ -186,6 +187,18 @@ namespace UpdateSystem
         /// <returns>全部下载完成，返回true</returns>
         private bool DownloadUpdateFiles(List<XMLFileInfo> xfi)
         {
+
+            using (var fs = new FileStream("D:\\bnm.txt", FileMode.Create))
+            {
+                using (var sw = new StreamWriter(fs))
+                {
+                    foreach (var item in xfi)
+                    {
+                        sw.WriteLine("Address:" + item.Address);
+                        sw.WriteLine("Install:" + item.InstallPath);
+                    }
+                }
+            }
             if (ftp != null)
             {
                 ftp.Dispose();
@@ -218,14 +231,15 @@ namespace UpdateSystem
                 }
                 if (isNewUpdate)
                 {
-                    break;
+                   // break;
                 }
             }
             if (ftp != null)
             {
                 ftp.Dispose();
             }
-            return !isNewUpdate;
+            //return !isNewUpdate;
+            return true;
         }
         /// <summary>
         /// 解析从云端下载的Version-C.config文件
@@ -244,30 +258,30 @@ namespace UpdateSystem
 
                 foreach (var l in GlobalData.webXML.x_FileList.x_change)
                 {
-                    if (GlobalData.updateNodesName.Count > 0)
+                    if (GlobalData.localUpdateNodesName.Count > 0)
                     {
-                        if (GlobalData.updateNodesName.Contains(l.Folder))
+                        if (GlobalData.localUpdateNodesName.Contains(l.Folder))
                         {
                             GlobalData.needUpdateFiles.AddRange(l.Files);
                             continue;
                         }
                     }
-                    if (GlobalData.updateCarNodesName.Count > 0 && l.Folder == "CarModel")
+                    if (l.Folder == "CarModel" && GlobalData.localUpdateCarNodesName.Count > 0)
                     {
                         //if (GlobalData.updateCarNodesName.Contains(l.Folder))
                         //{
                         //    GlobalData.needUpdateFiles.AddRange(l.Files);
                         //    continue;
                         //}
-                        foreach (var item in GlobalData.updateCarNodesName)
+                        foreach (var item in GlobalData.localUpdateCarNodesName)
                         {
                             foreach (var item1 in l.Files)
                             {
                                 var fol = "\\CarModel\\" + item;
                                 var fol2 = "/CarModel/" + item;
-                                if (item1.Address.Contains(fol) || item1 .Address .Contains(fol2))
+                                if (item1.Address.Contains(fol) || item1.Address.Contains(fol2))
                                 {
-                                    item1.InstallPath = item1.Address.Replace("\\Change\\","\\");
+                                    item1.InstallPath = item1.Address.Replace("\\Change\\", "\\");
                                     GlobalData.needUpdateFiles.Add(item1);
                                 }
                             }
@@ -287,48 +301,131 @@ namespace UpdateSystem
             GlobalData.needDeleteFiles.Clear();
             Action<List<XMLFileInfo>, List<XMLFileInfo>> _A = (_local, _web) =>
             {
-                GlobalData.needUpdateFiles.AddRange(_web);
-                GlobalData.needDeleteFiles.AddRange(_local);
+                //GlobalData.needUpdateFiles.AddRange(_web);
+                //GlobalData.needDeleteFiles.AddRange(_local);
+                var needUpdateFiles = new List<XMLFileInfo>();
+                var needDeleteFiles = new List<XMLFileInfo>();
+                needUpdateFiles.AddRange(_web);
+                needDeleteFiles.AddRange(_local);
                 foreach (var l in _local)
                 {
                     foreach (var w in _web)
                     {
                         if (l.Name == w.Name)
                         {
-                            if (l.Hash == w.Hash)
+                            if (l.Name.ToLower ().EndsWith(".xml"))
                             {
-                                GlobalData.needUpdateFiles.Remove(w);
+
                             }
-                            GlobalData.needDeleteFiles.Remove(l);
+                            else if (l.Hash == w.Hash)
+                            {
+                                //GlobalData.needUpdateFiles.Remove(w);
+                                needUpdateFiles.Remove(w);
+                            }
+                            //GlobalData.needDeleteFiles.Remove(l);
+                            //needDeleteFiles.Remove(l);
+                            break;
                         }
                     }
+                }
+                ///
+                if (needUpdateFiles.Count > 0)
+                {
+                    GlobalData.needUpdateFiles.AddRange(needUpdateFiles);
+                }
+                if (needDeleteFiles.Count > 0)
+                {
+                    GlobalData.needDeleteFiles.AddRange(needDeleteFiles);
                 }
             };
 
 
             _A(GlobalData.localXML.x_FileList.x_base.Files, GlobalData.webXML.x_FileList.x_base.Files);
             _A(GlobalData.localXML.x_FileList.x_other.Files, GlobalData.webXML.x_FileList.x_other.Files);
-            foreach (var item in GlobalData.updateNodesName)
+
+            ///新增的科目 
+            var addNodes = new List<string>(GlobalData.webUpdateNodesName);
+            var needDeletenodes = new List<string>();
+            foreach (var item in GlobalData.localUpdateNodesName)
+            {
+                ///计算需要删除的节点
+                if (!GlobalData.webUpdateNodesName.Contains(item))
+                {
+                    //needDeletenodes.Add(item);
+                }
+                else
+                {
+                    addNodes.Remove(item);
+                }
+            }
+            foreach (var item in GlobalData.webUpdateNodesName)
             {
                 var o = new List<XMLFileInfo>();
                 var n = new List<XMLFileInfo>();
                 foreach (var i1 in GlobalData.localXML.x_FileList.x_change)
                 {
+                    o = null;
+                    
                     if (i1.Folder == item)
                     {
                         o = i1.Files;
+                        break;
                     }
+
                 }
-                foreach (var i1 in GlobalData.webXML.x_FileList.x_change)
+
+                foreach (var w1 in GlobalData.webXML.x_FileList.x_change)
                 {
-                    if (i1.Folder == item)
+                    n = null;
+                    
+                    if (addNodes.Contains(w1.Folder))
                     {
-                        n = i1.Files;
+                        GlobalData.needUpdateFiles.AddRange(w1.Files);
+                        break;
+                    }
+                    if (w1.Folder == item)
+                    {
+                        n = w1.Files;
+                        break;
                     }
                 }
-                _A(o, n);
+                if (o != null && n != null)
+                {
+                    _A(o, n);
+                }
             }
 
+            ///更新车
+            foreach (var item in GlobalData.webUpdateCarNodesName)
+            {
+                foreach (var w1 in GlobalData.webXML.x_FileList.x_change)
+                {
+                    #region 更新车
+                    if (w1.Folder == "CarModel")
+                    {
+                        foreach (var item1 in w1.Files)
+                        {
+                            var fol = "\\CarModel\\" + item;
+                            var fol2 = "/CarModel/" + item;
+                            if (item1.Address.Contains(fol) || item1.Address.Contains(fol2))
+                            {
+                                item1.InstallPath = item1.Address.Replace("\\Change\\", "\\");
+                                GlobalData.needUpdateFiles.Add(item1);
+                            }
+                        }
+                        break;
+                    }
+                    #endregion
+                }
+            }
+            if (GlobalData.isDebug)
+            {
+                GlobalEvent.WriteLog("检测更新： GlobalData.needUpdateFiles ：" + GlobalData.needUpdateFiles.Count);
+                foreach (var item in GlobalData.needUpdateFiles)
+                {
+                    GlobalEvent.WriteLog(item.Name);
+                }
+            }
             return GlobalData.needUpdateFiles.Count > 0;
         }
         private void ShowDownloadTime()
@@ -431,7 +528,7 @@ namespace UpdateSystem
                     ftp = new FTPDownload("anonymous", "yungshing@tom.com");
                     break;
                 case Utility.EcpType.FileNotFound:
-                    isNewUpdate = true;
+                    //isNewUpdate = true;
                     break;
                 default:
                     //System.Windows.Forms.MessageBox.Show("未知错误");
@@ -495,7 +592,8 @@ namespace UpdateSystem
                     var md5 = Utility.GetMD5Value(tP);
                     if (t[i].Hash != md5)
                     {
-                        GlobalData.failureFiles.Add(t[i]);
+                        var tmp = t[i];
+                        GlobalData.failureFiles.Add(tmp);
                         GlobalEvent.WriteLog(t[i].Address);
                         GlobalEvent.WriteLog("云MD5：" + t[i].Hash);
                         GlobalEvent.WriteLog("本地MD5：" + md5);
@@ -508,7 +606,9 @@ namespace UpdateSystem
                     #region 检测文件-------------------文件是否存在方式 因为MD5目前有些电脑会出问题
                     if (!File.Exists(tP))
                     {
-                        GlobalData.failureFiles.Add(t[i]);
+                        var tmp = t[i];
+                        GlobalEvent.WriteLog(t[i].Address);
+                        GlobalData.failureFiles.Add(tmp);
                     }
                     #endregion
                 }
@@ -528,21 +628,20 @@ namespace UpdateSystem
             {
                 File.Delete(p);
             }
-            var db = ftp.Download(GlobalData.dataWebAddress, p);
-            while (!db)
+            while (!ftp.Download(GlobalData.dataWebAddress, p))
             {
-                db = ftp.Download(GlobalData.dataWebAddress, p);
+               continue ;
             }
             ftp.Dispose();
             var dataXml = Utility.ODecode(p).SelectSingleNode("Version");
             var ve = dataXml.SelectSingleNode("ClientVersion").Attributes[0].Value;
-            if (GlobalData.version != ve)
+            if (GlobalData.webVersion != ve)
             {
-                GlobalData.version = ve;
+                GlobalData.webVersion = ve;
 
                 isNewUpdate = true;
-                GlobalData.updateCarNodesName.Clear();
-                GlobalData.updateNodesName.Clear();
+                GlobalData.localUpdateCarNodesName.Clear();
+                GlobalData.localUpdateNodesName.Clear();
                 if (dataXml.SelectSingleNode("UpdateText") != null)
                 {
                     var updates = dataXml.SelectSingleNode("UpdateText").ChildNodes;
@@ -558,7 +657,7 @@ namespace UpdateSystem
                     var v = dataXml.SelectSingleNode("FileHashList").SelectNodes("FileName");
                     for (int i = 0; i < v.Count; i++)
                     {
-                        GlobalData.updateNodesName.Add(v[i].Attributes[0].InnerText.Replace(" ", ""));
+                        GlobalData.localUpdateNodesName.Add(v[i].Attributes[0].InnerText.Replace(" ", ""));
                     }
                 }
                 catch { }
@@ -567,7 +666,7 @@ namespace UpdateSystem
                     var c = dataXml.SelectNodes("CarModel");
                     for (int i = 0; i < c.Count; i++)
                     {
-                        GlobalData.updateCarNodesName.Add(c[i].Attributes[0].InnerText.Replace(" ", ""));
+                        GlobalData.localUpdateCarNodesName.Add(c[i].Attributes[0].InnerText.Replace(" ", ""));
                     }
                 }
                 catch

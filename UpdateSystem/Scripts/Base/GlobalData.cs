@@ -74,9 +74,24 @@ namespace UpdateSystem
 
         public static NewMainUI mainForm;
 
+        /// <summary>
+        /// 本地data.config中的科目节点名字
+        /// </summary>
+        public static List<string> localUpdateNodesName = new List<string>();
+        /// <summary>
+        /// 从服务器下载下载的data.config中的科目节点名字
+        /// </summary>
+        public static List<string> webUpdateNodesName = new List<string>();
+        /// <summary>
+        /// 本地data.config中的车节点名字
+        /// </summary>
+        public static List<string> localUpdateCarNodesName = new List<string>();
 
-        public static List<string> updateNodesName = new List<string>();
-        public static List<string> updateCarNodesName = new List<string>();
+        /// <summary>
+        /// 从服务器下载下载的data.config中的车节点名字
+        /// </summary>
+        public static List<string> webUpdateCarNodesName = new List<string>();
+
 
         public static string debugLogName = "Log";
 

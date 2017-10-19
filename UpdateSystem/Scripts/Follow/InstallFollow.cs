@@ -62,9 +62,10 @@ namespace UpdateSystem
                     var md5 = Utility.GetMD5Value(tP);
                     if (t[i].Hash != md5)
                     {
-                        GlobalData.failureFiles.Add(t[i]);
-                        GlobalEvent.WriteLog(t[i].Address);
-                        GlobalEvent.WriteLog("云MD5：" + t[i].Hash);
+                        var tmp = t[i];
+                        GlobalData.failureFiles.Add(tmp);
+                        GlobalEvent.WriteLog(tmp.Address);
+                        GlobalEvent.WriteLog("云MD5：" + tmp.Hash);
                         GlobalEvent.WriteLog("本地MD5：" + md5);
                     }
                     #endregion
@@ -74,7 +75,8 @@ namespace UpdateSystem
                     #region 检测文件-------------------文件是否存在方式 因为MD5目前有些电脑会出问题
                     if (!File.Exists(tP))
                     {
-                        GlobalData.failureFiles.Add(t[i]);
+                        var tmp = t[i];
+                        GlobalData.failureFiles.Add(tmp);
                     }
                     #endregion
                 }
@@ -103,7 +105,7 @@ namespace UpdateSystem
             RundoShowInstallInfo("删除冗沉文件");
             GlobalEvent.WriteLog("删除冗沉文件");
 
-            DeleteRedundant();
+            //DeleteRedundant();
         }
 
         private void InstallBodyFile()

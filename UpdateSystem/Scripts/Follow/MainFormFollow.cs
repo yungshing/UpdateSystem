@@ -71,7 +71,7 @@ namespace UpdateSystem
             ///step  ------------------- 启动程序 版本自检
             if (GlobalData.isDebug)
             {
-                CheckSelfVersion_Alpha();
+               // CheckSelfVersion_Alpha();
             }
             else
             {
@@ -160,18 +160,27 @@ namespace UpdateSystem
         {
             //var webDataXml = Utility.ODecode(Path.Combine(Directory.GetCurrentDirectory(), "data.config.tmp"));
             //return GlobalData.Version != webDataXml.SelectSingleNode("ClientVersion").Attributes[0].Value;
-            return GlobalData.version != GlobalData.webVersion;
+            return CheckFirstUse() || GlobalData.version != GlobalData.webVersion;
         }
 
         /// <summary>
         /// 解析data.config文件
         /// </summary>
-        private void AnalyseDataConfig()
+        private void AnalyseDataConfig(bool isLocal = true)
         {
-            var p = Path.Combine(Directory.GetCurrentDirectory(), "data.config");
+            string dataName = isLocal ? "data.config" : "data.config.tmp";
+            var p = Path.Combine(Directory.GetCurrentDirectory(), dataName);
             var xmlDoc = Utility.ODecode(p);
-            GlobalData.updateCarNodesName.Clear();
-            GlobalData.updateNodesName.Clear();
+            if (isLocal)
+            {
+                GlobalData.localUpdateNodesName.Clear();
+                GlobalData.localUpdateCarNodesName.Clear();
+            }
+            else
+            {
+                GlobalData.webUpdateCarNodesName.Clear();
+                GlobalData.webUpdateNodesName.Clear();
+            }
             ///科目 包
             if (xmlDoc.SelectSingleNode("Version").SelectSingleNode("FileHashList") != null)
             {
@@ -180,7 +189,15 @@ namespace UpdateSystem
                     var v = xmlDoc.SelectSingleNode("Version").SelectSingleNode("FileHashList").SelectNodes("FileName");
                     for (int i = 0; i < v.Count; i++)
                     {
-                        GlobalData.updateNodesName.Add(v[i].Attributes[0].InnerText.Replace(" ", ""));
+                        var _v = v[i].Attributes[0].InnerText.Replace(" ", "");
+                        if (isLocal)
+                        {
+                            GlobalData.localUpdateNodesName.Add(_v);
+                        }
+                        else
+                        {
+                            GlobalData.webUpdateNodesName.Add(_v);
+                        }
                     }
                 }
                 catch { }
@@ -191,12 +208,31 @@ namespace UpdateSystem
                 var c = xmlDoc.SelectSingleNode("Version").SelectNodes("CarModel");
                 for (int i = 0; i < c.Count; i++)
                 {
-                    GlobalData.updateCarNodesName.Add(c[i].Attributes[0].InnerText.Replace(" ", ""));
+                    var _v = c[i].Attributes[0].InnerText.Replace(" ", "");
+                    if (isLocal)
+                    {
+                        GlobalData.localUpdateCarNodesName.Add(_v);
+                    }
+                    else
+                    {
+                        GlobalData.webUpdateCarNodesName.Add(_v);
+                    }
                 }
             }
             catch
             {
 
+            }
+
+            ///更新内容
+            if (xmlDoc.SelectSingleNode("Version").SelectSingleNode("UpdateText") != null)
+            {
+                var updates = xmlDoc.SelectSingleNode("Version").SelectSingleNode("UpdateText").ChildNodes;
+                GlobalData.updateText = new string[updates.Count];
+                for (int i = 0; i < updates.Count; i++)
+                {
+                    GlobalData.updateText[i] = updates[i].InnerText.TrimEnd() + "\n";
+                }
             }
             ///FTP信息
             try
@@ -211,9 +247,18 @@ namespace UpdateSystem
                 System.Windows.Forms.MessageBox.Show("配置文件损坏");
                 System.Environment.Exit(0);
             }
+            ///客户端版本
             if (xmlDoc.SelectSingleNode("Version").SelectSingleNode("ClientVersion") != null)
             {
-                GlobalData.version = xmlDoc.SelectSingleNode("Version").SelectSingleNode("ClientVersion ").Attributes[0].Value;
+                var version = xmlDoc.SelectSingleNode("Version").SelectSingleNode("ClientVersion ").Attributes[0].Value;
+                if (isLocal)
+                {
+                    GlobalData.version = version;
+                }
+                else
+                {
+                    GlobalData.webVersion = version;
+                }
             }
             if (xmlDoc.SelectSingleNode("Version").SelectSingleNode("Path") != null)
             {
@@ -253,23 +298,23 @@ namespace UpdateSystem
             }
             ftp.SetProgerssBar(doShowProgressBar);
             
-            var db = ftp.Download(GlobalData.dataWebAddress, p);
-            while (!db)
+            while (!ftp.Download(GlobalData.dataWebAddress, p))
             {
-                db = ftp.Download(GlobalData.dataWebAddress, p);
+                continue;
             }
             ftp.Dispose();
-            var dataXml = Utility.ODecode(p).SelectSingleNode("Version");
-            if (dataXml.SelectSingleNode("UpdateText") != null)
-            {
-                var updates = dataXml.SelectSingleNode("UpdateText").ChildNodes;
-                GlobalData.updateText = new string[updates.Count];
-                for (int i = 0; i < updates.Count; i++)
-                {
-                    GlobalData.updateText[i] = updates[i].InnerText.TrimEnd() + "\n";
-                }
-            }
-            GlobalData.webVersion = dataXml.SelectSingleNode("ClientVersion").Attributes[0].Value;
+            //var dataXml = Utility.ODecode(p).SelectSingleNode("Version");
+            //if (dataXml.SelectSingleNode("UpdateText") != null)
+            //{
+            //    var updates = dataXml.SelectSingleNode("UpdateText").ChildNodes;
+            //    GlobalData.updateText = new string[updates.Count];
+            //    for (int i = 0; i < updates.Count; i++)
+            //    {
+            //        GlobalData.updateText[i] = updates[i].InnerText.TrimEnd() + "\n";
+            //    }
+            //}
+            //GlobalData.webVersion = dataXml.SelectSingleNode("ClientVersion").Attributes[0].Value;
+            AnalyseDataConfig(false);
         }
         /// <summary>
         /// 检测更新软件是否有更新
@@ -310,11 +355,10 @@ namespace UpdateSystem
             }
             FTPDownload ftp = new FTPDownload(GlobalData.mAccount.UserName, GlobalData.mAccount.Password);
             
-            var b = ftp.Download(addr, lPath);
-            while (!b)
+            while (!ftp.Download(addr, lPath))
             {
                 //ftp = new FTPDownload("anonymous", "yungshing@tom.com");
-                b = ftp.Download(addr, lPath);
+                continue;
             }
             using (var sr = new StreamReader(lPath))
             {
@@ -331,11 +375,10 @@ namespace UpdateSystem
             {
                 File.Delete(lPath);
             }
-            b = ftp.Download(addr, lPath);
-            while (!b)
+            while (!ftp.Download(addr, lPath))
             {
                 //ftp = new FTPDownload("anonymous", "yungshing@tom.com");
-                b = ftp.Download(addr, lPath);
+                continue;
             }
             var p = Path.Combine(Environment.CurrentDirectory, "Launch.exe");
             System.Diagnostics.Process.Start(p, "-callUpdate");
@@ -379,12 +422,11 @@ namespace UpdateSystem
                 File.Delete(lPath);
             }
             FTPDownload ftp = new FTPDownload(GlobalData.mAccount.UserName, GlobalData.mAccount.Password);
-
-            var b = ftp.Download(addr, lPath);
-            while (!b)
+            
+            while (!ftp.Download(addr, lPath))
             {
-               // ftp = new FTPDownload("anonymous", "yungshing@tom.com");
-                b = ftp.Download(addr, lPath);
+                // ftp = new FTPDownload("anonymous", "yungshing@tom.com");
+                continue;
             }
             using (var sr = new StreamReader(lPath))
             {
@@ -401,11 +443,9 @@ namespace UpdateSystem
             {
                 File.Delete(lPath);
             }
-            b = ftp.Download(addr, lPath);
-            while (!b)
+            while (!ftp.Download(addr, lPath))
             {
-               // ftp = new FTPDownload("anonymous", "yungshing@tom.com");
-                b = ftp.Download(addr, lPath);
+                continue;
             }
             var p = Path.Combine(Environment.CurrentDirectory, "Launch.exe");
             System.Diagnostics.Process.Start(p, "-callUpdate -alpha");

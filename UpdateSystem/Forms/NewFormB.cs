@@ -90,7 +90,14 @@ namespace UpdateSystem
             {
                 MessageBox.Show("打开程序失败");
             }
-            Utility.ExitApp();
+            if (GlobalData.isFirstUse)
+            {
+                Utility.ExitApp();
+            }
+            else
+            {
+                this.WindowState = FormWindowState.Minimized;
+            }
         }
 
         private void mix_btn_Click(object sender, EventArgs e)
