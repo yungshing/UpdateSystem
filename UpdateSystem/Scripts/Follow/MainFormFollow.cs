@@ -348,7 +348,8 @@ namespace UpdateSystem
                 }
             }
 
-            var addr = GlobalData.mAccount.Webaddr.Replace("Version-C.config", "Launch\\Launch.config");
+            var addr = GlobalData.mAccount.Webaddr.Replace("Version-C.config", "Launch/Launch.config");
+            var addr1 = Utility.AnalysisFTPAddr(addr);
             var lPath = Path.Combine(Directory.GetCurrentDirectory(), "Launch.config.tmp");
             if (File.Exists(lPath))
             {

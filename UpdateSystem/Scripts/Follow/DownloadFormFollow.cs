@@ -187,15 +187,17 @@ namespace UpdateSystem
         /// <returns>全部下载完成，返回true</returns>
         private bool DownloadUpdateFiles(List<XMLFileInfo> xfi)
         {
-
-            using (var fs = new FileStream("D:\\bnm.txt", FileMode.Create))
+            if (GlobalData.isDebug)
             {
-                using (var sw = new StreamWriter(fs))
+                using (var fs = new FileStream("D:\\bnm.txt", FileMode.Create))
                 {
-                    foreach (var item in xfi)
+                    using (var sw = new StreamWriter(fs))
                     {
-                        sw.WriteLine("Address:" + item.Address);
-                        sw.WriteLine("Install:" + item.InstallPath);
+                        foreach (var item in xfi)
+                        {
+                            sw.WriteLine("Address:" + item.Address);
+                            sw.WriteLine("Install:" + item.InstallPath);
+                        }
                     }
                 }
             }

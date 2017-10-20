@@ -101,7 +101,9 @@ namespace UpdateSystem
             get { return password; }
             set { password = value; }
         }
-
+        /// <summary>
+        /// 格式 ftp://120.76.28.224/WenDingVersion-C/Config/Version-C.config
+        /// </summary>
         public string Webaddr
         {
             get
@@ -120,6 +122,11 @@ namespace UpdateSystem
     }
     public class FTPAddress
     {
+        /// <summary>
+        /// 格式：
+        /// ftp://120.76.28.224/
+        /// ftp://10.46.98.208/
+        /// </summary>
         public string[] AllAddress;
 
         private int currIndex = 0;
@@ -136,8 +143,13 @@ namespace UpdateSystem
                 }
             }
         }
-       
 
+        /// <summary>
+        /// 格式：
+        /// ftp://120.76.28.224/
+        /// ftp://10.46.98.208/
+        /// 中的一个
+        /// </summary>
         public string CurrAddress
         {
             get

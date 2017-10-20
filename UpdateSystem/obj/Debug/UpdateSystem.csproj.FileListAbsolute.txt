@@ -36,3 +36,4 @@ E:\LocalSVN\SVN\Git\UpdateSystem\UpdateSystem\obj\Debug\UpdateSystem.ZProgressBa
 E:\LocalSVN\SVN\Git\UpdateSystem\UpdateSystem\obj\Debug\UpdateSystem.csproj.GenerateResource.Cache
 E:\LocalSVN\SVN\Git\UpdateSystem\UpdateSystem\obj\Debug\UpdateSystem.exe
 E:\LocalSVN\SVN\Git\UpdateSystem\UpdateSystem\obj\Debug\UpdateSystem.pdb
+E:\LocalSVN\SVN\Git\UpdateSystem\UpdateSystem\obj\Debug\UpdateSystem.csprojResolveAssemblyReference.cache

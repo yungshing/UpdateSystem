@@ -354,5 +354,26 @@ namespace UpdateSystem
         {
             Environment.Exit(0);
         }
+
+
+        /// <summary>
+        /// ftp://120.76.28.224/WenDingVersion-C/Config/Version-C.config
+        /// 0: ftp://120.76.28.224
+        /// 1: /WenDingVersion-C/Config/Version-C.config
+        /// </summary>
+        /// <param name="add"></param>
+        /// <returns></returns>
+        public static string[] AnalysisFTPAddr(string add)
+        {
+            string[] s = new string[] { "", "" };
+            var a = add.Replace("\\", "/");
+            var b = add.Replace("ftp://", ""); ///120.76.28.224/WenDingVersion-C/Config/Version-C.config
+            var c = b.Split('/');///
+            var d = b.Replace(c[0]/*120.76.28.224*/, "");///  /WenDingVersion-C/Config/Version-C.config
+
+            s[0] = "ftp://" + c[0];
+            s[1] = d;
+            return s;
+        }
     }
 }
