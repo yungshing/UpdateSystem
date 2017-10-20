@@ -96,7 +96,10 @@ namespace UpdateSystem
         public static string debugLogName = "Log";
 
         public static bool isDebug = false;
-       
+        /// <summary>
+        /// 更新软件自身版本
+        /// </summary>
+        public static string selfVersion = "";
     }
    
     public class GlobalEvent

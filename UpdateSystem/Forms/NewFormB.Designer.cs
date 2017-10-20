@@ -38,10 +38,10 @@
             this.flowLayoutPanel1 = new System.Windows.Forms.FlowLayoutPanel();
             this.time_lab = new System.Windows.Forms.Label();
             this.button1 = new System.Windows.Forms.Button();
+            this.alpha_lab = new System.Windows.Forms.Label();
             this.start_btn = new UpdateSystem.Scripts.Component.ZButtn();
             this.mix_btn = new UpdateSystem.Scripts.Component.ZButtn();
             this.minCloseBtn1 = new UpdateSystem.MinCloseBtn();
-            this.alpha_lab = new System.Windows.Forms.Label();
             ((System.ComponentModel.ISupportInitialize)(this.info_pro)).BeginInit();
             this.panel1.SuspendLayout();
             this.flowLayoutPanel1.SuspendLayout();
@@ -148,6 +148,18 @@
             this.button1.UseVisualStyleBackColor = true;
             this.button1.Click += new System.EventHandler(this.button1_Click);
             // 
+            // alpha_lab
+            // 
+            this.alpha_lab.AutoSize = true;
+            this.alpha_lab.BackColor = System.Drawing.Color.Transparent;
+            this.alpha_lab.Font = new System.Drawing.Font("宋体", 15F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+            this.alpha_lab.ForeColor = System.Drawing.Color.Beige;
+            this.alpha_lab.Location = new System.Drawing.Point(423, 329);
+            this.alpha_lab.Name = "alpha_lab";
+            this.alpha_lab.Size = new System.Drawing.Size(79, 20);
+            this.alpha_lab.TabIndex = 15;
+            this.alpha_lab.Text = "Alpha版";
+            // 
             // start_btn
             // 
             this.start_btn.BackColor = System.Drawing.Color.Transparent;
@@ -183,18 +195,6 @@
             this.minCloseBtn1.Name = "minCloseBtn1";
             this.minCloseBtn1.Size = new System.Drawing.Size(86, 30);
             this.minCloseBtn1.TabIndex = 3;
-            // 
-            // alpha_lab
-            // 
-            this.alpha_lab.AutoSize = true;
-            this.alpha_lab.BackColor = System.Drawing.Color.Transparent;
-            this.alpha_lab.Font = new System.Drawing.Font("宋体", 15F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
-            this.alpha_lab.ForeColor = System.Drawing.Color.Beige;
-            this.alpha_lab.Location = new System.Drawing.Point(423, 297);
-            this.alpha_lab.Name = "alpha_lab";
-            this.alpha_lab.Size = new System.Drawing.Size(79, 20);
-            this.alpha_lab.TabIndex = 15;
-            this.alpha_lab.Text = "Alpha版";
             // 
             // NewFormB
             // 

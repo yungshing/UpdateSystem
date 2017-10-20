@@ -30,6 +30,7 @@ namespace UpdateSystem
                 Application.Exit();
                 return;
             }
+            GlobalData.isDebug = true;
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
             System.Net.ServicePointManager.DefaultConnectionLimit = 1000;

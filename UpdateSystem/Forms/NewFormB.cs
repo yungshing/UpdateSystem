@@ -327,6 +327,11 @@ namespace UpdateSystem
             bool visiable = GlobalData.isDebug;
             button1.Visible = visiable;
             alpha_lab.Visible = visiable;
+            if (visiable)
+            {
+                alpha_lab.Text = "Alpha版 " + GlobalData.selfVersion;
+            }
+
         }
     }
 }

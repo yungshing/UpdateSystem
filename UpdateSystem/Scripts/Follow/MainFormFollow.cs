@@ -71,7 +71,8 @@ namespace UpdateSystem
             ///step  ------------------- 启动程序 版本自检
             if (GlobalData.isDebug)
             {
-               // CheckSelfVersion_Alpha();
+                // CheckSelfVersion_Alpha();
+                CheckSelfVersion();
             }
             else
             {
@@ -364,6 +365,7 @@ namespace UpdateSystem
             {
                 nVersion = sr.ReadLine();
             }
+            GlobalData.selfVersion = nVersion;
             if (nVersion == oVersion)
             {
                 return;
@@ -432,6 +434,7 @@ namespace UpdateSystem
             {
                 nVersion = sr.ReadLine();
             }
+            GlobalData.selfVersion = nVersion;
             if (nVersion == oVersion)
             {
                 return;
