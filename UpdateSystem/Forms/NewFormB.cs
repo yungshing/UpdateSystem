@@ -119,6 +119,7 @@ namespace UpdateSystem
                     installFollow.doInstallOver += () => Utility.ExitApp();
                     btnType = BtnType.Null;
                     mix_btn.Visible = false;
+                    start_btn.Visible = false;
                     break;
                 case BtnType.Update:
                     SetInfoControlVisible(true);

@@ -14,11 +14,11 @@ namespace UpdateSystem
     {
         public static void KillProgram()
         {
-            if (GlobalData.localXML.x_KillProcessNames == null)
+            if (GlobalData.localVersionXML.x_KillProcessNames == null)
             {
                 return;
             }
-            foreach (var item in GlobalData.localXML.x_KillProcessNames)
+            foreach (var item in GlobalData.localVersionXML.x_KillProcessNames)
             {
                 var v = item.Replace(".exe", "");
                 foreach (var item2 in Process.GetProcessesByName(v))
@@ -34,7 +34,7 @@ namespace UpdateSystem
             {
                 Process p = new Process();
                 p.StartInfo.FileName = GlobalData.filePath.ProgramFullPath;
-                p.StartInfo.WorkingDirectory = GlobalData.filePath.ProgramFullPath.Replace(GlobalData.localXML.x_ProcessInfo.name, "");
+                p.StartInfo.WorkingDirectory = GlobalData.filePath.ProgramFullPath.Replace(GlobalData.localVersionXML.x_ProcessInfo.name, "");
                 p.Start();
                 GlobalEvent.WriteLog("打開程序成功：" + GlobalData.filePath.ProgramFullPath);
                 GlobalEvent.SaveDebugLog();
@@ -374,6 +374,11 @@ namespace UpdateSystem
             s[0] = "ftp://" + c[0];
             s[1] = d;
             return s;
+        }
+
+        public static FTPDownload CreateFTPDownload()
+        {
+            return new FTPDownload(GlobalData.dataXML.CurrFTPUsername,GlobalData.dataXML .CurrFTPPassword);
         }
     }
 }

@@ -39,14 +39,19 @@ namespace UpdateSystem
                 }
                 else
                 {
-                    webXmlAddress = Path.Combine(GlobalData.ftpAddress.CurrAddress, value);
+                    webXmlAddress = Path.Combine(GlobalData.dataXML.CurrIP, value);
                 }
             }
         }
 
-
-        public static VersionXML localXML = new VersionXML();
-        public static VersionXML webXML = new VersionXML();
+        /// <summary>
+        /// 解析本地Version-C.data
+        /// </summary>
+        public static VersionXML localVersionXML = new VersionXML();
+        /// <summary>
+        /// 解析云端下载下来的Version-C.data
+        /// </summary>
+        public static VersionXML webVersionXML = new VersionXML();
         public static List<XMLFileInfo> needUpdateFiles = new List<XMLFileInfo>();
         /// <summary>
         /// 未下载完整的文件
@@ -58,8 +63,8 @@ namespace UpdateSystem
         public static List<XMLFileInfo> needDeleteFiles = new List<XMLFileInfo>();
 
         public static FilePathSet filePath = new FilePathSet();
-        public static FTPAddress ftpAddress = new FTPAddress();
-        public static Account mAccount = new Account();
+        public static DataXML dataXML = new DataXML();
+        //public static Account mAccount = new Account();
         /// <summary>
         /// 检测到了有更新 ？
         /// </summary>
@@ -96,6 +101,10 @@ namespace UpdateSystem
         public static string debugLogName = "Log";
 
         public static bool isDebug = false;
+        /// <summary>
+        /// 检测文件时，忽略xml文件hash值对比
+        /// </summary>
+        public static bool ignoreXMLFile = true;
         /// <summary>
         /// 更新软件自身版本
         /// </summary>

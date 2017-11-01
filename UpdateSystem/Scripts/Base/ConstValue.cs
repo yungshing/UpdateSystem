@@ -89,11 +89,11 @@ namespace UpdateSystem
         {
             get
             {
-                if (GlobalData.localXML.x_ProcessInfo.name == null)
+                if (GlobalData.localVersionXML.x_ProcessInfo.name == null)
                 {
                     return Path.Combine(ProgramPath, "12.12");
                 }
-                return Path.Combine(ProgramPath, GlobalData.localXML.x_ProcessInfo.path);
+                return Path.Combine(ProgramPath, GlobalData.localVersionXML.x_ProcessInfo.path);
             }
         }
         private string updatePath = "";

@@ -131,18 +131,18 @@ namespace UpdateSystem
                 ftp.Dispose();
             }
             GlobalEvent.WriteLog("下载version-C.config");
-            ftp = new FTPDownload(GlobalData.mAccount.UserName, GlobalData.mAccount.Password);
-            if (GlobalData.isFirstUse)
-            {
-                ftp = new FTPDownload(GlobalData.mAccount.UserName, GlobalData.mAccount.Password);
-                GlobalData.WebXmlAddress = GlobalData.mAccount.Webaddr;
-            }
-            else
-            {
-                GlobalData.localXML = Utility.Decode<VersionXML>(GlobalData.filePath.ConfigDataFullPath);
-                ftp = new FTPDownload(GlobalData.localXML.x_FtpAccount.Username, GlobalData.localXML.x_FtpAccount.Password);
-                GlobalData.WebXmlAddress = GlobalData.localXML.x_FTPAddress[0] + GlobalData.localXML.x_UpdateWebAddress;
-            }
+            ftp = Utility.CreateFTPDownload();
+            //if (GlobalData.isFirstUse)
+            //{
+            //    ftp = new FTPDownload(GlobalData.mAccount.UserName, GlobalData.mAccount.Password);
+            //    GlobalData.WebXmlAddress = GlobalData.mAccount.Webaddr;
+            //}
+            //else
+            //{
+            //    GlobalData.localXML = Utility.Decode<VersionXML>(GlobalData.filePath.ConfigDataFullPath);
+            //    ftp = new FTPDownload(GlobalData.localXML.x_FtpAccount.Username, GlobalData.localXML.x_FtpAccount.Password);
+            //    GlobalData.WebXmlAddress = GlobalData.localXML.x_FTPAddress[0] + GlobalData.localXML.x_UpdateWebAddress;
+            //}
 
             SetFormUIEvent();
             RundoShowDownloadFileInfo("下载配置文件");
@@ -154,15 +154,13 @@ namespace UpdateSystem
             {
                 File.Delete(GlobalData.filePath.ConfigDataFullPath_Tmp+".zzfz");
             }
-            var ifd = ftp.Download(GlobalData.WebXmlAddress.Replace("\\", "/"), GlobalData.filePath.ConfigDataFullPath_Tmp);
-            while (!ifd)
+            while (!ftp.Download(GlobalData.dataXML.CurrVersionAddr, GlobalData.filePath.ConfigDataFullPath_Tmp))
             {
                 Utility.SetException(ftp.E);
                 if (File.Exists(GlobalData.filePath.ConfigDataFullPath_Tmp + ".zzfz"))
                 {
                     File.Delete(GlobalData.filePath.ConfigDataFullPath_Tmp + ".zzfz");
                 }
-                ifd = ftp.Download(GlobalData.WebXmlAddress.Replace("\\", "/"), GlobalData.filePath.ConfigDataFullPath_Tmp);
             }
             if (GlobalData.isFirstUse)
             {
@@ -172,10 +170,9 @@ namespace UpdateSystem
                     File.Delete(p);
                 }
                 
-                var db = ftp.Download(GlobalData.dataWebAddress, p);
-                while (!db)
+                while (!ftp.Download(GlobalData.dataXML.CurrDataAddr, p))
                 {
-                    db = ftp.Download(GlobalData.dataWebAddress, p);
+                    Utility.SetException(ftp.E);
                 }
             }
             ftp.Dispose();
@@ -205,8 +202,8 @@ namespace UpdateSystem
             {
                 ftp.Dispose();
             }
-            GlobalData.ftpAddress.AllAddress = GlobalData.localXML.x_FTPAddress;
-            ftp = new FTPDownload(GlobalData.localXML.x_FtpAccount.Username, GlobalData.localXML.x_FtpAccount.Password);
+            //GlobalData.dataXML.IP = GlobalData.localXML.x_FTPAddress;
+            ftp = Utility.CreateFTPDownload();
             SetFormUIEvent();
             for (int i = 0; i < xfi.Count; i++)
             {
@@ -217,7 +214,7 @@ namespace UpdateSystem
                 float f = (float)i / (float)xfi.Count;
                 f = f * 100f;
                 RundoShowFileCountPercent(((int)f).ToString() + "%");
-                var dP = Path.Combine(GlobalData.ftpAddress.CurrAddress, xfi[i].Address);
+                var dP = Path.Combine(GlobalData.dataXML.CurrIP, xfi[i].Address);
                 var sP = Path.Combine(GlobalData.filePath.UpdatePath, xfi[i].Address);
                 var d1 = new FileInfo(sP);
                 if (!Directory.Exists(d1.Directory.FullName))
@@ -233,15 +230,14 @@ namespace UpdateSystem
                 }
                 if (isNewUpdate)
                 {
-                   // break;
+                   break;
                 }
             }
             if (ftp != null)
             {
                 ftp.Dispose();
             }
-            //return !isNewUpdate;
-            return true;
+            return !isNewUpdate;
         }
         /// <summary>
         /// 解析从云端下载的Version-C.config文件
@@ -249,16 +245,16 @@ namespace UpdateSystem
         /// </summary>
         private void AnalysisWebVersion_C()
         {
-            GlobalData.webXML = Utility.Decode<VersionXML>(GlobalData.filePath.ConfigDataFullPath_Tmp);
+            GlobalData.webVersionXML = Utility.Decode<VersionXML>(GlobalData.filePath.ConfigDataFullPath_Tmp);
             if (GlobalData.isFirstUse)
             {
-                GlobalData.localXML = Utility.Decode<VersionXML>(GlobalData.filePath.ConfigDataFullPath_Tmp);
+                GlobalData.localVersionXML = Utility.Decode<VersionXML>(GlobalData.filePath.ConfigDataFullPath_Tmp);
 
                 GlobalData.needUpdateFiles.Clear();
-                GlobalData.needUpdateFiles.AddRange(GlobalData.webXML.x_FileList.x_base.Files);
-                GlobalData.needUpdateFiles.AddRange(GlobalData.webXML.x_FileList.x_other.Files);
+                GlobalData.needUpdateFiles.AddRange(GlobalData.webVersionXML.x_FileList.x_base.Files);
+                GlobalData.needUpdateFiles.AddRange(GlobalData.webVersionXML.x_FileList.x_other.Files);
 
-                foreach (var l in GlobalData.webXML.x_FileList.x_change)
+                foreach (var l in GlobalData.webVersionXML.x_FileList.x_change)
                 {
                     if (GlobalData.localUpdateNodesName.Count > 0)
                     {
@@ -303,8 +299,6 @@ namespace UpdateSystem
             GlobalData.needDeleteFiles.Clear();
             Action<List<XMLFileInfo>, List<XMLFileInfo>> _A = (_local, _web) =>
             {
-                //GlobalData.needUpdateFiles.AddRange(_web);
-                //GlobalData.needDeleteFiles.AddRange(_local);
                 var needUpdateFiles = new List<XMLFileInfo>();
                 var needDeleteFiles = new List<XMLFileInfo>();
                 needUpdateFiles.AddRange(_web);
@@ -315,17 +309,17 @@ namespace UpdateSystem
                     {
                         if (l.Name == w.Name)
                         {
-                            if (l.Name.ToLower ().EndsWith(".xml"))
+                            if (GlobalData.ignoreXMLFile)
                             {
-
+                                if (l.Name.ToLower().EndsWith(".xml"))
+                                {
+                                    break;
+                                }
                             }
-                            else if (l.Hash == w.Hash)
+                            if (l.Hash == w.Hash)
                             {
-                                //GlobalData.needUpdateFiles.Remove(w);
                                 needUpdateFiles.Remove(w);
                             }
-                            //GlobalData.needDeleteFiles.Remove(l);
-                            //needDeleteFiles.Remove(l);
                             break;
                         }
                     }
@@ -342,8 +336,9 @@ namespace UpdateSystem
             };
 
 
-            _A(GlobalData.localXML.x_FileList.x_base.Files, GlobalData.webXML.x_FileList.x_base.Files);
-            _A(GlobalData.localXML.x_FileList.x_other.Files, GlobalData.webXML.x_FileList.x_other.Files);
+            _A(GlobalData.localVersionXML.x_FileList.x_base.Files, GlobalData.webVersionXML.x_FileList.x_base.Files);
+            //change文件夹内的文件只在首次使用时下载
+            //_A(GlobalData.localVersionXML.x_FileList.x_other.Files, GlobalData.webVersionXML.x_FileList.x_other.Files);
 
             ///新增的科目 
             var addNodes = new List<string>(GlobalData.webUpdateNodesName);
@@ -364,7 +359,7 @@ namespace UpdateSystem
             {
                 var o = new List<XMLFileInfo>();
                 var n = new List<XMLFileInfo>();
-                foreach (var i1 in GlobalData.localXML.x_FileList.x_change)
+                foreach (var i1 in GlobalData.localVersionXML.x_FileList.x_change)
                 {
                     o = null;
                     
@@ -376,7 +371,7 @@ namespace UpdateSystem
 
                 }
 
-                foreach (var w1 in GlobalData.webXML.x_FileList.x_change)
+                foreach (var w1 in GlobalData.webVersionXML.x_FileList.x_change)
                 {
                     n = null;
                     
@@ -400,7 +395,7 @@ namespace UpdateSystem
             ///更新车
             foreach (var item in GlobalData.webUpdateCarNodesName)
             {
-                foreach (var w1 in GlobalData.webXML.x_FileList.x_change)
+                foreach (var w1 in GlobalData.webVersionXML.x_FileList.x_change)
                 {
                     #region 更新车
                     if (w1.Folder == "CarModel")
@@ -514,8 +509,8 @@ namespace UpdateSystem
                     CheckInternet(3);
                     break;
                 case Utility.EcpType.LimitConnect:
-                    GlobalData.ftpAddress.CurrIndex++;
-                    doShowDownloadFileInfo(Utility.E_LimitConnect + ":" + GlobalData.ftpAddress.CurrIndex.ToString() + "号");
+                    GlobalData.dataXML.CurrIndex++;
+                    doShowDownloadFileInfo(Utility.E_LimitConnect + ":" + GlobalData.dataXML.CurrIndex.ToString() + "号");
                     System.Windows.Forms.Application.DoEvents();
                     Utility.Delay(2); ///**********延迟
                     break;
@@ -624,13 +619,14 @@ namespace UpdateSystem
         /// </summary>
         private bool DownladDataAndAnalysisData()
         {
-            FTPDownload ftp = new FTPDownload(GlobalData.localXML.x_FtpAccount.Username, GlobalData.localXML.x_FtpAccount.Password);
+            //FTPDownload ftp = new FTPDownload(GlobalData.localXML.x_FtpAccount.Username, GlobalData.localXML.x_FtpAccount.Password);
+            ftp = Utility.CreateFTPDownload();
             var p = Path.Combine(Directory.GetCurrentDirectory(), "data.config.tmp");
             if (File.Exists(p))
             {
                 File.Delete(p);
             }
-            while (!ftp.Download(GlobalData.dataWebAddress, p))
+            while (!ftp.Download(GlobalData.dataXML .CurrDataAddr, p))
             {
                continue ;
             }

@@ -58,7 +58,7 @@ namespace UpdateSystem
 
             ///step  ------------解析data.config文件
             AnalyseDataConfig();
-            
+
             ///step---------解析Version-C.config
             AnalysisLocalXML();
 
@@ -146,7 +146,7 @@ namespace UpdateSystem
             if (!CheckFirstUse())
             {
                 ///读取本地Version-C文件
-                GlobalData.localXML = Utility.Decode<VersionXML>(GlobalData.filePath.ConfigDataFullPath);
+                GlobalData.localVersionXML = Utility.Decode<VersionXML>(GlobalData.filePath.ConfigDataFullPath);
                 return true;
             }
             return false;
@@ -238,10 +238,25 @@ namespace UpdateSystem
             ///FTP信息
             try
             {
-                var v = xmlDoc.SelectSingleNode("Version").SelectSingleNode("FTP").Attributes;
-                GlobalData.mAccount.UserName = v[0].Value;
-                GlobalData.mAccount.Password = v[1].Value;
-                GlobalData.mAccount.Webaddr = v[2].Value;
+                //var v = xmlDoc.SelectSingleNode("Version").SelectSingleNode("FTP").Attributes;
+                //GlobalData.mAccount.UserName = v[0].Value;
+                //GlobalData.mAccount.Password = v[1].Value;
+                //GlobalData.mAccount.Webaddr = v[2].Value;
+                var v = xmlDoc.SelectSingleNode("Version").SelectNodes("FTP");
+
+                for (int i = 0; i < v.Count; i++)
+                {
+                    GlobalData.dataXML.FTPUsername.Add( v[i].Attributes[0].Value);
+                    GlobalData.dataXML.FTPPassword.Add( v[i].Attributes[1].Value);
+                    GlobalData.dataXML.Version_CAddr.Add( v[i].Attributes[2].Value);
+                    GlobalData.dataXML.IP.Add(Utility.AnalysisFTPAddr(v[i].Attributes[2].Value)[0]);
+                }
+
+                v = xmlDoc.SelectSingleNode("Version").SelectNodes("Path");
+                for (int i = 0; i < v.Count; i++)
+                {
+                    GlobalData.dataXML.DataConfigAddr.Add(v[i].Attributes[0].Value);
+                }
             }
             catch
             {
@@ -261,10 +276,10 @@ namespace UpdateSystem
                     GlobalData.webVersion = version;
                 }
             }
-            if (xmlDoc.SelectSingleNode("Version").SelectSingleNode("Path") != null)
-            {
-                GlobalData.dataWebAddress = xmlDoc.SelectSingleNode("Version").SelectSingleNode("Path").Attributes[0].Value;
-            }
+            //if (xmlDoc.SelectSingleNode("Version").SelectSingleNode("Path") != null)
+            //{
+            //    GlobalData.dataWebAddress = xmlDoc.SelectSingleNode("Version").SelectSingleNode("Path").Attributes[0].Value;
+            //}
         }
 
         /// <summary>
@@ -291,30 +306,23 @@ namespace UpdateSystem
         /// </summary>
         private void DownloadDataConfig()
         {
-            FTPDownload ftp = new FTPDownload(GlobalData.localXML.x_FtpAccount.Username, GlobalData.localXML.x_FtpAccount.Password);
+            var ftp = Utility.CreateFTPDownload();
             var p = Path.Combine(Directory.GetCurrentDirectory(), "data.config.tmp");
             if (File.Exists(p))
             {
                 File.Delete(p);
             }
             ftp.SetProgerssBar(doShowProgressBar);
-            
-            while (!ftp.Download(GlobalData.dataWebAddress, p))
+
+            while (!ftp.Download(GlobalData.dataXML.CurrDataAddr, p))
             {
+                if (Utility.SetException(ftp.E) == Utility.EcpType.LimitConnect)
+                {
+                    GlobalData.dataXML.CurrIndex++;
+                }
                 continue;
             }
             ftp.Dispose();
-            //var dataXml = Utility.ODecode(p).SelectSingleNode("Version");
-            //if (dataXml.SelectSingleNode("UpdateText") != null)
-            //{
-            //    var updates = dataXml.SelectSingleNode("UpdateText").ChildNodes;
-            //    GlobalData.updateText = new string[updates.Count];
-            //    for (int i = 0; i < updates.Count; i++)
-            //    {
-            //        GlobalData.updateText[i] = updates[i].InnerText.TrimEnd() + "\n";
-            //    }
-            //}
-            //GlobalData.webVersion = dataXml.SelectSingleNode("ClientVersion").Attributes[0].Value;
             AnalyseDataConfig(false);
         }
         /// <summary>
@@ -348,19 +356,22 @@ namespace UpdateSystem
                 }
             }
 
-            var addr = GlobalData.mAccount.Webaddr.Replace("Version-C.config", "Launch/Launch.config");
-            var addr1 = Utility.AnalysisFTPAddr(addr);
+            var addr = GlobalData.dataXML.CurrVersionAddr.Replace("Version-C.config", "Launch/Launch.config");
             var lPath = Path.Combine(Directory.GetCurrentDirectory(), "Launch.config.tmp");
             if (File.Exists(lPath))
             {
                 File.Delete(lPath);
             }
-            FTPDownload ftp = new FTPDownload(GlobalData.mAccount.UserName, GlobalData.mAccount.Password);
-            
+            var ftp = Utility.CreateFTPDownload();
+
             while (!ftp.Download(addr, lPath))
             {
                 //ftp = new FTPDownload("anonymous", "yungshing@tom.com");
-                continue;
+                if (Utility.SetException(ftp.E) == Utility.EcpType.LimitConnect)
+                {
+                    GlobalData.dataXML.CurrIndex++;
+                    addr = GlobalData.dataXML.CurrVersionAddr.Replace("Version-C.config", "Launch/Launch.config");
+                }
             }
             using (var sr = new StreamReader(lPath))
             {
@@ -381,78 +392,14 @@ namespace UpdateSystem
             while (!ftp.Download(addr, lPath))
             {
                 //ftp = new FTPDownload("anonymous", "yungshing@tom.com");
-                continue;
+                if (Utility.SetException(ftp.E) == Utility.EcpType.LimitConnect)
+                {
+                    GlobalData.dataXML.CurrIndex++;
+                    addr = GlobalData.dataXML.CurrVersionAddr.Replace("Version-C.config", "Launch/Launch.config");
+                }
             }
             var p = Path.Combine(Environment.CurrentDirectory, "Launch.exe");
             System.Diagnostics.Process.Start(p, "-callUpdate");
-            Utility.ExitApp();
-        }
-
-        /// <summary>
-        /// 内部测试版更新
-        /// </summary>
-        private void CheckSelfVersion_Alpha()
-        {
-            if (!CheckInternet())
-            {
-                return;
-            }
-            var path = Path.Combine(Environment.CurrentDirectory, "Launch.config");
-            string oVersion = "v1.0";
-            string nVersion = "v1.0";
-            if (!File.Exists(path))
-            {
-                using (var fs = new FileStream(path, FileMode.Create))
-                {
-                    using (var sr = new StreamWriter(fs))
-                    {
-                        sr.WriteLine(oVersion);
-                    }
-                }
-            }
-            else
-            {
-                using (var sr = new StreamReader(path))
-                {
-                    oVersion = sr.ReadLine();
-                }
-            }
-
-            var addr = GlobalData.mAccount.Webaddr.Replace("Version-C.config", "Launch\\Alpha\\Launch.config");
-            var lPath = Path.Combine(Directory.GetCurrentDirectory(), "Launch.config.tmp");
-            if (File.Exists(lPath))
-            {
-                File.Delete(lPath);
-            }
-            FTPDownload ftp = new FTPDownload(GlobalData.mAccount.UserName, GlobalData.mAccount.Password);
-            
-            while (!ftp.Download(addr, lPath))
-            {
-                // ftp = new FTPDownload("anonymous", "yungshing@tom.com");
-                continue;
-            }
-            using (var sr = new StreamReader(lPath))
-            {
-                nVersion = sr.ReadLine();
-            }
-            GlobalData.selfVersion = nVersion;
-            if (nVersion == oVersion)
-            {
-                return;
-            }
-            ftp.SetProgerssBar(doShowProgressBar);
-            addr = addr.Replace("Launch.config", "UpdateSystem.exe");
-            lPath = lPath.Replace("Launch.config.tmp", "UpdateSystem.exe.tmp");
-            if (File.Exists(lPath))
-            {
-                File.Delete(lPath);
-            }
-            while (!ftp.Download(addr, lPath))
-            {
-                continue;
-            }
-            var p = Path.Combine(Environment.CurrentDirectory, "Launch.exe");
-            System.Diagnostics.Process.Start(p, "-callUpdate -alpha");
             Utility.ExitApp();
         }
     }

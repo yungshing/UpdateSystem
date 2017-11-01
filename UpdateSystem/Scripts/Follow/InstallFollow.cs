@@ -207,7 +207,7 @@ namespace UpdateSystem
         private void InstallOver()
         {
             RundoShowInstallInfo("打开软件中");
-            GlobalData.localXML = Utility.Decode<VersionXML>(GlobalData.filePath.ConfigDataFullPath);
+            GlobalData.localVersionXML = Utility.Decode<VersionXML>(GlobalData.filePath.ConfigDataFullPath);
             if (!Utility.OpenProgram())
             {
                 System.Windows.Forms.MessageBox.Show("程序打开失败");
