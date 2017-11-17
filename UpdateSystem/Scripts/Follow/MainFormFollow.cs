@@ -56,10 +56,13 @@ namespace UpdateSystem
             ///step  ---------------- 检测data.config文件是否存在，不存在，则退出程序
             DataConfigExist();
 
-            ///step  ------------解析data.config文件
+            ///step  ------------解析本地data.config文件
+            ///获取版本号
             AnalyseDataConfig();
 
             ///step---------解析Version-C.config
+            ///2017.11.01 好像没有在此解析的必要了
+            ///2017.11.14 还是得解析本地XML
             AnalysisLocalXML();
 
             ///step ---------延迟启动，如果没网，则等待一分钟检测，如果有网，直接进入下一流程
@@ -80,16 +83,18 @@ namespace UpdateSystem
             }
 
             ///step  -------------检测是否有必要下载data.confg
+            ///2017.11.01 必需下载data.config
             if (!NeedDownloadDataConfig())
             {
-                return true;
+                //return true;
             }
 
             ///step  --------------下载data.config,保存为data.config.tmp
             DownloadDataConfig();
-
+            ///step-----分析下载的data.config.tmp
+            AnalyseDataConfig(false);
             ///step  ------------对比data.config和data.config.tmp中version,检测是否有更新
-            return ComparerDataConfig();
+            return CheckNewVersion();
         }
 
         /// <summary>
@@ -157,10 +162,8 @@ namespace UpdateSystem
         /// false : 无更新
         /// </summary>
         /// <returns></returns>
-        private bool ComparerDataConfig()
+        private bool CheckNewVersion()
         {
-            //var webDataXml = Utility.ODecode(Path.Combine(Directory.GetCurrentDirectory(), "data.config.tmp"));
-            //return GlobalData.Version != webDataXml.SelectSingleNode("ClientVersion").Attributes[0].Value;
             return CheckFirstUse() || GlobalData.version != GlobalData.webVersion;
         }
 
@@ -226,22 +229,25 @@ namespace UpdateSystem
             }
 
             ///更新内容
-            if (xmlDoc.SelectSingleNode("Version").SelectSingleNode("UpdateText") != null)
+            if (CheckFirstUse())
             {
-                var updates = xmlDoc.SelectSingleNode("Version").SelectSingleNode("UpdateText").ChildNodes;
-                GlobalData.updateText = new string[updates.Count];
-                for (int i = 0; i < updates.Count; i++)
+                GlobalData.updateText = new string[] { "首次更新将会下载全部文件需要一定时间，请耐心等待。" };
+            }
+            else
+            {
+                if (xmlDoc.SelectSingleNode("Version").SelectSingleNode("UpdateText") != null)
                 {
-                    GlobalData.updateText[i] = updates[i].InnerText.TrimEnd() + "\n";
+                    var updates = xmlDoc.SelectSingleNode("Version").SelectSingleNode("UpdateText").ChildNodes;
+                    GlobalData.updateText = new string[updates.Count];
+                    for (int i = 0; i < updates.Count; i++)
+                    {
+                        GlobalData.updateText[i] = updates[i].InnerText.TrimEnd() + "\n";
+                    }
                 }
             }
             ///FTP信息
             try
             {
-                //var v = xmlDoc.SelectSingleNode("Version").SelectSingleNode("FTP").Attributes;
-                //GlobalData.mAccount.UserName = v[0].Value;
-                //GlobalData.mAccount.Password = v[1].Value;
-                //GlobalData.mAccount.Webaddr = v[2].Value;
                 var v = xmlDoc.SelectSingleNode("Version").SelectNodes("FTP");
 
                 for (int i = 0; i < v.Count; i++)
@@ -276,10 +282,6 @@ namespace UpdateSystem
                     GlobalData.webVersion = version;
                 }
             }
-            //if (xmlDoc.SelectSingleNode("Version").SelectSingleNode("Path") != null)
-            //{
-            //    GlobalData.dataWebAddress = xmlDoc.SelectSingleNode("Version").SelectSingleNode("Path").Attributes[0].Value;
-            //}
         }
 
         /// <summary>
@@ -323,7 +325,6 @@ namespace UpdateSystem
                 continue;
             }
             ftp.Dispose();
-            AnalyseDataConfig(false);
         }
         /// <summary>
         /// 检测更新软件是否有更新

@@ -190,11 +190,14 @@ namespace UpdateSystem
                 {
                     using (var sw = new StreamWriter(fs))
                     {
+                        int i = 0;
                         foreach (var item in xfi)
                         {
+                            sw.WriteLine((i++).ToString());
                             sw.WriteLine("Address:" + item.Address);
                             sw.WriteLine("Install:" + item.InstallPath);
                         }
+                        sw.WriteLine("总数：" + i.ToString());
                     }
                 }
             }
@@ -256,22 +259,17 @@ namespace UpdateSystem
 
                 foreach (var l in GlobalData.webVersionXML.x_FileList.x_change)
                 {
-                    if (GlobalData.localUpdateNodesName.Count > 0)
+                    if (GlobalData.webUpdateNodesName.Count > 0)
                     {
-                        if (GlobalData.localUpdateNodesName.Contains(l.Folder))
+                        if (GlobalData.webUpdateNodesName.Contains(l.Folder))
                         {
                             GlobalData.needUpdateFiles.AddRange(l.Files);
                             continue;
                         }
                     }
-                    if (l.Folder == "CarModel" && GlobalData.localUpdateCarNodesName.Count > 0)
+                    if (l.Folder == "CarModel" && GlobalData.webUpdateCarNodesName.Count > 0)
                     {
-                        //if (GlobalData.updateCarNodesName.Contains(l.Folder))
-                        //{
-                        //    GlobalData.needUpdateFiles.AddRange(l.Files);
-                        //    continue;
-                        //}
-                        foreach (var item in GlobalData.localUpdateCarNodesName)
+                        foreach (var item in GlobalData.webUpdateCarNodesName)
                         {
                             foreach (var item1 in l.Files)
                             {
@@ -377,8 +375,8 @@ namespace UpdateSystem
                     
                     if (addNodes.Contains(w1.Folder))
                     {
+                        addNodes.Remove(w1.Folder);
                         GlobalData.needUpdateFiles.AddRange(w1.Files);
-                        break;
                     }
                     if (w1.Folder == item)
                     {
