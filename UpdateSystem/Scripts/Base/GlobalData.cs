@@ -15,6 +15,7 @@ namespace UpdateSystem
 
         public static string version = "";
         public static string webVersion = "we";
+        public static string adVersion;
         /// <summary>
         /// 另一张表，检测要下载哪些文件用的
         /// </summary>
@@ -100,7 +101,7 @@ namespace UpdateSystem
 
         public static string debugLogName = "Log";
 
-        public static bool isDebug = false;
+        public static bool isDebug = true;
         /// <summary>
         /// 检测文件时，忽略xml文件hash值对比
         /// </summary>

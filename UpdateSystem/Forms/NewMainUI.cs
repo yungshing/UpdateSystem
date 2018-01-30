@@ -11,7 +11,12 @@ namespace UpdateSystem
     public partial class NewMainUI : Form
     {
         private Point mouseOffset;
+        #region 进度条
+        /// <summary>
+        /// 程序打开时，进度条显示时间,叠加，毫秒
+        /// </summary>
         private int timeOffset = 0;
+        #endregion
         private MainFormFollow follow;
         Thread Update_Thread;
         public NewMainUI()
@@ -86,9 +91,9 @@ namespace UpdateSystem
             }
             else
             {
-                if (value / (float)max >= 8 / 820f)
+                if (value / (float)max >= 8 / 800f)
                 {
-                    pictureBox1.Size = new Size((int)(820 * value / (float)max), 17);
+                    pictureBox1.Size = new Size((int)(800 * value / (float)max), 17);
                 }
             }
         }

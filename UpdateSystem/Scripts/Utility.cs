@@ -380,5 +380,19 @@ namespace UpdateSystem
         {
             return new FTPDownload(GlobalData.dataXML.CurrFTPUsername,GlobalData.dataXML .CurrFTPPassword);
         }
+
+        /// <summary>
+        /// 获取指定分区可用容量(C,D,E,F)
+        /// 大小用M表示 
+        /// </summary>
+        /// <param name="name"></param>
+        /// <returns>M</returns>
+
+        public static int GetHardDiskAvailableSpace(string name = "D")
+        {
+            name = name.ToUpper() + ":\\";
+            var di = new DriveInfo(name);
+            return (int)(di.AvailableFreeSpace / 1024f / 1024f);
+        }
     }
 }

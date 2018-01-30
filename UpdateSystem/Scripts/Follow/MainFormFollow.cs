@@ -94,7 +94,14 @@ namespace UpdateSystem
             ///step-----分析下载的data.config.tmp
             AnalyseDataConfig(false);
             ///step  ------------对比data.config和data.config.tmp中version,检测是否有更新
-            return CheckNewVersion();
+            var isUpdate = CheckNewVersion();
+            if (!isUpdate)
+            {
+                ///下载广告
+                System.Threading.Thread adThread = new System.Threading.Thread(DownADImgs);
+                adThread.Start();
+            }
+            return isUpdate;
         }
 
         /// <summary>
@@ -228,6 +235,13 @@ namespace UpdateSystem
 
             }
 
+            ///广告
+            try
+            {
+                GlobalData.adVersion = xmlDoc.SelectSingleNode("Version/CompanyLogo").Attributes["value"].InnerText;
+            }
+            catch { }
+
             ///更新内容
             if (CheckFirstUse())
             {
@@ -235,9 +249,9 @@ namespace UpdateSystem
             }
             else
             {
-                if (xmlDoc.SelectSingleNode("Version").SelectSingleNode("UpdateText") != null)
+                if (xmlDoc.SelectSingleNode("Version/UpdateText") != null)
                 {
-                    var updates = xmlDoc.SelectSingleNode("Version").SelectSingleNode("UpdateText").ChildNodes;
+                    var updates = xmlDoc.SelectSingleNode("Version/UpdateText").ChildNodes;
                     GlobalData.updateText = new string[updates.Count];
                     for (int i = 0; i < updates.Count; i++)
                     {
@@ -248,17 +262,17 @@ namespace UpdateSystem
             ///FTP信息
             try
             {
-                var v = xmlDoc.SelectSingleNode("Version").SelectNodes("FTP");
+                var v = xmlDoc.SelectNodes("Version/FTP");
 
                 for (int i = 0; i < v.Count; i++)
                 {
-                    GlobalData.dataXML.FTPUsername.Add( v[i].Attributes[0].Value);
-                    GlobalData.dataXML.FTPPassword.Add( v[i].Attributes[1].Value);
-                    GlobalData.dataXML.Version_CAddr.Add( v[i].Attributes[2].Value);
+                    GlobalData.dataXML.FTPUsername.Add(v[i].Attributes[0].Value);
+                    GlobalData.dataXML.FTPPassword.Add(v[i].Attributes[1].Value);
+                    GlobalData.dataXML.Version_CAddr.Add(v[i].Attributes[2].Value);
                     GlobalData.dataXML.IP.Add(Utility.AnalysisFTPAddr(v[i].Attributes[2].Value)[0]);
                 }
 
-                v = xmlDoc.SelectSingleNode("Version").SelectNodes("Path");
+                v = xmlDoc.SelectNodes("Version/Path");
                 for (int i = 0; i < v.Count; i++)
                 {
                     GlobalData.dataXML.DataConfigAddr.Add(v[i].Attributes[0].Value);
@@ -270,9 +284,9 @@ namespace UpdateSystem
                 System.Environment.Exit(0);
             }
             ///客户端版本
-            if (xmlDoc.SelectSingleNode("Version").SelectSingleNode("ClientVersion") != null)
+            if (xmlDoc.SelectSingleNode("Version/ClientVersion") != null)
             {
-                var version = xmlDoc.SelectSingleNode("Version").SelectSingleNode("ClientVersion ").Attributes[0].Value;
+                var version = xmlDoc.SelectSingleNode("Version/ClientVersion ").Attributes[0].Value;
                 if (isLocal)
                 {
                     GlobalData.version = version;
@@ -364,10 +378,9 @@ namespace UpdateSystem
                 File.Delete(lPath);
             }
             var ftp = Utility.CreateFTPDownload();
-
+            ///下载Launch.config，判断更新软件是否有更新 
             while (!ftp.Download(addr, lPath))
             {
-                //ftp = new FTPDownload("anonymous", "yungshing@tom.com");
                 if (Utility.SetException(ftp.E) == Utility.EcpType.LimitConnect)
                 {
                     GlobalData.dataXML.CurrIndex++;
@@ -383,6 +396,7 @@ namespace UpdateSystem
             {
                 return;
             }
+            ///如果更新软件有更新
             ftp.SetProgerssBar(doShowProgressBar);
             addr = addr.Replace("Launch.config", "UpdateSystem.exe");
             lPath = lPath.Replace("Launch.config.tmp", "UpdateSystem.exe.tmp");
@@ -392,7 +406,6 @@ namespace UpdateSystem
             }
             while (!ftp.Download(addr, lPath))
             {
-                //ftp = new FTPDownload("anonymous", "yungshing@tom.com");
                 if (Utility.SetException(ftp.E) == Utility.EcpType.LimitConnect)
                 {
                     GlobalData.dataXML.CurrIndex++;
@@ -402,6 +415,67 @@ namespace UpdateSystem
             var p = Path.Combine(Environment.CurrentDirectory, "Launch.exe");
             System.Diagnostics.Process.Start(p, "-callUpdate");
             Utility.ExitApp();
+        }
+
+        private void DownADImgs()
+        {
+            if (File.Exists(GlobalData.filePath.ConfigDataFullPath_Tmp))
+            {
+                File.Delete(GlobalData.filePath.ConfigDataFullPath_Tmp);
+            }
+            if (File.Exists(GlobalData.filePath.ConfigDataFullPath_Tmp + ".zzfz"))
+            {
+                File.Delete(GlobalData.filePath.ConfigDataFullPath_Tmp + ".zzfz");
+            }
+            var ftp = Utility.CreateFTPDownload();
+            while (!ftp.Download(GlobalData.dataXML.CurrVersionAddr, GlobalData.filePath.ConfigDataFullPath_Tmp))
+            {
+                Utility.SetException(ftp.E);
+                if (File.Exists(GlobalData.filePath.ConfigDataFullPath_Tmp + ".zzfz"))
+                {
+                    File.Delete(GlobalData.filePath.ConfigDataFullPath_Tmp + ".zzfz");
+                }
+            }
+            GlobalData.webVersionXML = Utility.Decode<VersionXML>(GlobalData.filePath.ConfigDataFullPath_Tmp);
+            foreach (var item in GlobalData.webVersionXML.x_FileList.x_change)
+            {
+                if (item.Folder == "CompanyLogo")
+                {
+                    var logo = item.Files.FindAll(d => d.Address.Contains(GlobalData.adVersion));
+                    var ftpa = Utility.CreateFTPDownload();
+                    foreach (var m in logo)
+                    {
+                        var dP = Path.Combine(GlobalData.dataXML.CurrIP, m.Address);
+                        var nP = Path.Combine(GlobalData.filePath.ProgramPath, m.InstallPath);
+                        if (File.Exists(nP))
+                        {
+                            if (Utility.GetMD5Value(nP) == m.Hash)
+                            {
+                                continue;
+                            }
+                            else
+                            {
+                                File.Delete(nP);
+                            }
+                        }
+                        if (File.Exists(nP + ".zzfz"))
+                        {
+                            File.Delete(nP + ".zzfz");
+                        }
+                        GlobalEvent.WriteLog("下载广告：" + m.Address);
+                        while (!ftpa.Download(dP.Replace("\\", "/"), nP))
+                        {
+                            GlobalEvent.WriteLog("下载广告失败：" + m.Address + "-----" + ftpa.E.Message);
+                            if (Utility.SetException(ftpa.E) == Utility.EcpType.LimitConnect)
+                            {
+                                GlobalData.dataXML.CurrIndex++;
+                                dP = Path.Combine(GlobalData.dataXML.CurrIP, m.Address);
+                            }
+                        }
+                    }
+                    return;
+                }
+            }
         }
     }
 }

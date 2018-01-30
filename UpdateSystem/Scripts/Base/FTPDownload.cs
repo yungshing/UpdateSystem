@@ -42,7 +42,7 @@ namespace UpdateSystem
             get { return pause; }
             set { pause = value; }
         }
-        public float DownloadSpeed { get;protected set; }
+        public float DownloadSpeed { get; protected set; }
         private FtpWebRequest request = null;
         private FtpWebResponse response;
         private Stream getStream;
@@ -118,6 +118,11 @@ namespace UpdateSystem
                 }
                 else
                 {
+                    var d1 = new FileInfo(_path_Tmp);
+                    if (!Directory.Exists(d1.Directory.FullName))
+                    {
+                        Directory.CreateDirectory(d1.Directory.FullName);
+                    }
                     wrStream = new FileStream(_path_Tmp, FileMode.Create, FileAccess.ReadWrite);
                     TotalBytes = Size(downloadPath);
                 }
@@ -141,7 +146,7 @@ namespace UpdateSystem
                     f = f * 100f;
                     ShowPercent(((int)f).ToString() + "%");
                     speed_tmp += n;
-                    if (stopWatch.ElapsedMilliseconds >= 800 )
+                    if (stopWatch.ElapsedMilliseconds >= 800)
                     {
                         stopWatch.Stop();
                         DownloadSpeed = speed_tmp * 1000f / stopWatch.ElapsedMilliseconds;
@@ -256,7 +261,7 @@ namespace UpdateSystem
                     }
                 }
             }
-            catch 
+            catch
             {
                 size = -1;
             }
@@ -284,39 +289,11 @@ namespace UpdateSystem
             try { request.Abort(); }
             catch { }
         }
-       public void RemoveInvoke()
+        public void RemoveInvoke()
         {
             doChangeProgressBarValue = null;
             doShowDownloadSpeed = null;
             doShowRemainTime = null;
-        }
-    }
-
-    public class FTPWebClient
-    {
-        public DownloadProgressChangedEventHandler doShowDownloadSpeed;
-
-        private string username;
-        private string password;
-        public FTPWebClient(string username, string pw)
-        {
-            this.username = username;
-            this.password = pw;
-        }
-        public void Download(string webaddr, string filename)
-        {
-            WebClient wc = new WebClient();
-            wc.Credentials = new NetworkCredential(username, password);
-            wc.DownloadProgressChanged += doShowDownloadSpeed;
-            wc.DownloadFileAsync(new Uri(webaddr), filename);
-        }
-
-        public long GetSize(string addr)
-        {
-            WebClient wc = new WebClient();
-            wc.Credentials = new NetworkCredential(username, password);
-            
-            return 0;
         }
     }
 }

@@ -77,6 +77,11 @@ namespace UpdateSystem
             {
                 downloadThread.Abort();
             }
+            ///检测硬盘剩余空间
+            if (!CheckHardDiskSpacePass())
+            {
+                return;
+            }
             ShowDownloadTime();
             downloadThread = new Thread(() =>
             {
@@ -86,6 +91,23 @@ namespace UpdateSystem
             });
             downloadThread.Start();
         }
+        /// <summary>
+        /// 磁盘容量是否足够
+        /// 如果小于10G，则退出程序
+        /// </summary>
+        /// <returns></returns>
+        private bool CheckHardDiskSpacePass()
+        {
+            var p = GlobalData.filePath.RootPath.Substring(0, 1);
+            if (Utility.GetHardDiskAvailableSpace(p) < 10000)
+            {
+                System.Windows.Forms.MessageBox.Show(p.ToUpper() + "盘容量不足10G，请整理磁盘！");
+                System.Environment.Exit(0);
+                return false;
+            }
+            return true;
+        }
+
         public bool Pause
         {
             get { return ftp.Pause; }
@@ -132,17 +154,6 @@ namespace UpdateSystem
             }
             GlobalEvent.WriteLog("下载version-C.config");
             ftp = Utility.CreateFTPDownload();
-            //if (GlobalData.isFirstUse)
-            //{
-            //    ftp = new FTPDownload(GlobalData.mAccount.UserName, GlobalData.mAccount.Password);
-            //    GlobalData.WebXmlAddress = GlobalData.mAccount.Webaddr;
-            //}
-            //else
-            //{
-            //    GlobalData.localXML = Utility.Decode<VersionXML>(GlobalData.filePath.ConfigDataFullPath);
-            //    ftp = new FTPDownload(GlobalData.localXML.x_FtpAccount.Username, GlobalData.localXML.x_FtpAccount.Password);
-            //    GlobalData.WebXmlAddress = GlobalData.localXML.x_FTPAddress[0] + GlobalData.localXML.x_UpdateWebAddress;
-            //}
 
             SetFormUIEvent();
             RundoShowDownloadFileInfo("下载配置文件");
@@ -282,6 +293,11 @@ namespace UpdateSystem
                                 }
                             }
                         }
+                    }
+                    if (l.Folder == "CompanyLogo")
+                    {
+                        var logo = l.Files.FindAll(d => d.Address.Contains(GlobalData.adVersion));
+                        GlobalData.needUpdateFiles.AddRange(logo);
                     }
                 }
             }

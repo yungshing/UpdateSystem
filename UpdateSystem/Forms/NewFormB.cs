@@ -28,7 +28,7 @@ namespace UpdateSystem
         }
         private void SetBtnText()
         {
-            if (mix_btn .InvokeRequired)
+            if (mix_btn.InvokeRequired)
             {
                 mix_btn.Invoke(new GlobalEvent.CallV_V(SetBtnText));
             }
@@ -39,7 +39,7 @@ namespace UpdateSystem
                 ShowDownloadSpeed("");
             }
         }
-       private void OnShow()
+        private void OnShow()
         {
             btnType = BtnType.Update;
 
@@ -56,7 +56,7 @@ namespace UpdateSystem
             SetInfoControlVisible(false);
             Alpha();
         }
-       
+
         private void UIBG_MouseDown(object sender, MouseEventArgs e)
         {
             if (e.Button == MouseButtons.Left)
@@ -77,7 +77,7 @@ namespace UpdateSystem
 
         enum BtnType
         {
-            Null=0,
+            Null = 0,
             Update,
             Pause,
             Start,
@@ -200,7 +200,7 @@ namespace UpdateSystem
         {
             if (version_lab.InvokeRequired)
             {
-                version_lab.Invoke(new GlobalEvent.CallV_S(ShowVersion),v);
+                version_lab.Invoke(new GlobalEvent.CallV_S(ShowVersion), v);
             }
             else
             {
@@ -243,14 +243,14 @@ namespace UpdateSystem
         private void SetInfoControlVisible(bool visible)
         {
             info_pro.Visible = visible;
-            info_pro.Size = new Size(1,info_pro .Size.Height);
+            info_pro.Size = new Size(1, info_pro.Size.Height);
             sum_lab.Visible = visible;
             sum_lab.Text = "";
             speed_lab.Visible = visible;
             speed_lab.Text = "";
         }
 
-       private  void ShowGameTime(string s)
+        private void ShowGameTime(string s)
         {
             int time = -1;
             int.TryParse(s, out time);
@@ -266,7 +266,7 @@ namespace UpdateSystem
 
         private void SetShotGameTimeLabelVisiable(bool visible)
         {
-            if (time_lab .InvokeRequired)
+            if (time_lab.InvokeRequired)
             {
                 time_lab.Invoke(new GlobalEvent.CallV_B(SetShotGameTimeLabelVisiable), visible);
             }
@@ -276,7 +276,7 @@ namespace UpdateSystem
         }
         private void NewFormB_Load(object sender, EventArgs e)
         {
-           // this.BackColor = Color.FromArgb(0, 1, 1);
+            // this.BackColor = Color.FromArgb(0, 1, 1);
             Bitmap b = new Bitmap(Properties.Resources.UI_BG);
             BitmapRegion.CreateControlRegion(this, b);
 
@@ -307,13 +307,13 @@ namespace UpdateSystem
 
         private void ShowMessageBox()
         {
-            if (this .InvokeRequired)
+            if (this.InvokeRequired)
             {
                 this.Invoke(new GlobalEvent.CallV_V(ShowMessageBox));
             }
             else
             {
-               // MessageBox.Show(this, "检测到部分文件损坏，请重新下载", "警告", MessageBoxButtons.OK);
+                // MessageBox.Show(this, "检测到部分文件损坏，请重新下载", "警告", MessageBoxButtons.OK);
                 btnType = BtnType.Update;
                 mix_btn.Visible = true;
                 mix_btn_Click(null, null);
